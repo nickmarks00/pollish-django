@@ -1,0 +1,2 @@
+# pollish-dj
+Django
