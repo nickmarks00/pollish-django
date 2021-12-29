@@ -3,13 +3,17 @@ from users.models import User
 
 # Create your models here.
 class Poll(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='polls', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     question_text = models.CharField(max_length=120, blank=False, default="Add your question here")
 
     def __str__(self):
         return f"{self.question_text} by {self.user.username}"
+
+    class Meta:
+        unique_together = ['user', 'created']  # user cannot create multiple posts at the same time
+        ordering = ['-updated']  # default ordering for posts is time of last update
     
 
 class Choice(models.Model):
