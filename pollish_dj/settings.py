@@ -29,11 +29,11 @@ DEBUG = True
 
 # add your IPv4 address here
 # Then python manage.py runserver <your ipV4>:8000
-ALLOWED_HOSTS = ['192.168.137.1']
+ALLOWED_HOSTS = ['192.168.137.1', '192.168.1.140']
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = False
-CORS_ORIGIN_WHITELIST = ['http://192.168.137.1']
+CORS_ORIGIN_WHITELIST = ['http://192.168.137.1', 'http://192.168.1.140']
 
 
 # Application definition
