@@ -31,4 +31,10 @@ class Choice(models.Model):
     def __str__(self):
         return "{} --- {}".format(self.poll.question_text,self.choice_text)
 
+
+class Comment(models.Model):
+    comment_text = models.TextField()
+    poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='comments')
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='comments')
+    created_at = models.DateTimeField(auto_now_add=True)
     
