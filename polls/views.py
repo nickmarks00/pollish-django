@@ -9,7 +9,7 @@ from .models import Poll, Choice
 # Create your views here.
 
 class PollView(generics.ListAPIView):
-    queryset = Poll.objects.all()
+    queryset = Poll.objects.select_related('profile').all()
     serializer_class = PollSerializer
 
 
@@ -22,7 +22,6 @@ class RegisterVote(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             choice_id = serializer.data.get('id')
-            print(choice_id)
 
             queryset = Choice.objects.filter(id=choice_id)
             if not queryset.exists():

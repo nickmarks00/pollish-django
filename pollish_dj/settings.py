@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     #third-party
     'rest_framework',
+    'debug_toolbar',
 
     # custom
     'users.apps.UsersConfig', 
@@ -54,6 +55,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware'
+]
+
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+    config('DEV_IP')
+    # ...
 ]
 
 ROOT_URLCONF = 'pollish_dj.urls'
