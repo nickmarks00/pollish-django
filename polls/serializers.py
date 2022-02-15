@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Poll, Choice
 
-from users.serializers import UserSerializer
+from users.serializers import ProfileSerializer
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -9,19 +9,20 @@ class ChoiceSerializer(serializers.ModelSerializer):
     # ensures that the id is included
     # there may be issues here in the sense that the id is NOT read-only though it should be
     id = serializers.IntegerField(required=True)
-
+    profiles = ProfileSerializer(many=True)
     class Meta:
         model = Choice
-        fields = ['choice_text', 'votes', 'id']
+        fields = ['choice_text', 'id', 'choice_image', 'profiles', 'votes']
+
 
 class PollSerializer(serializers.ModelSerializer):
 
     choices = ChoiceSerializer(many=True)
-    user = UserSerializer(read_only=True)
+    profile = ProfileSerializer(read_only=True)
     
     class Meta:
         model = Poll
-        fields = ('id', 'user', 'updated', 'question_text', 'choices')
+        fields = ('id', 'profile', 'updated', 'question_text', 'choices')
 
 
     # the following method handles creation of new choices
