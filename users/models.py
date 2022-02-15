@@ -8,7 +8,7 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     # removes dependency of Profile on specific User model
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     #TODO change the upload_to property
     avatar = models.ImageField(upload_to='users', default='no_picture.png')
     updated = models.DateTimeField(auto_now=True)
