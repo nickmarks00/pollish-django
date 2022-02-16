@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Poll, Choice
+from .models import Poll, Choice, Comment
 
 from users.serializers import ProfileSerializer
 
@@ -12,17 +12,27 @@ class ChoiceSerializer(serializers.ModelSerializer):
     profiles = ProfileSerializer(many=True)
     class Meta:
         model = Choice
-        fields = ['choice_text', 'id', 'choice_image', 'profiles', 'votes']
+        fields = ('choice_text', 'id', 'choice_image', 'profiles', 'votes')
+
+
+class CommentSerializer(serializers.ModelSerializer):
+
+    profile = ProfileSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ('comment_text', 'profile', 'created_at')
 
 
 class PollSerializer(serializers.ModelSerializer):
 
     choices = ChoiceSerializer(many=True)
     profile = ProfileSerializer(read_only=True)
+    comments = CommentSerializer(many=True)
     
     class Meta:
         model = Poll
-        fields = ('id', 'profile', 'updated', 'question_text', 'choices')
+        fields = ('id', 'profile', 'updated', 'question_text', 'choices', 'comments')
 
 
     # the following method handles creation of new choices
@@ -40,3 +50,4 @@ class PollSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+

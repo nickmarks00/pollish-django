@@ -9,7 +9,7 @@ from .models import Poll, Choice
 # Create your views here.
 
 class PollView(generics.ListAPIView):
-    queryset = Poll.objects.select_related('profile').all()
+    queryset = Poll.objects.select_related('profile').all()[:10]
     serializer_class = PollSerializer
 
 
