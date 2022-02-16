@@ -95,8 +95,11 @@ AUTH_USER_MODEL = 'users.User'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'pollish', # name of db in mysql / datagrip
+        'HOST': 'localhost',
+        'USER': 'root',
+        'PASSWORD': config('MYSQL_ROOT')
     }
 }
 

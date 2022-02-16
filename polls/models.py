@@ -7,7 +7,7 @@ class Poll(models.Model):
     profile = models.ForeignKey(Profile, related_name='polls', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    question_text = models.CharField(max_length=120, blank=False, default="")
+    question_text = models.TextField(blank=False, default="")
 
     def __str__(self):
         return f"{self.question_text} by {self.profile.user.username}"
@@ -18,8 +18,8 @@ class Poll(models.Model):
   
 
 class Choice(models.Model):
-    choice_image = models.ImageField(blank=True, upload_to="poll_directory_path")
-    choice_text = models.CharField(max_length=60, blank=False, default="")
+    choice_image = models.ImageField(blank=True, upload_to="poll_directory_path", null=True)
+    choice_text = models.CharField(max_length=255, blank=False, default="")
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices')
     profiles = models.ManyToManyField(Profile, related_name='choices')
     votes = models.IntegerField(default=0, blank=False, validators=[MinValueValidator(0)])

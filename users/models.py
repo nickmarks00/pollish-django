@@ -12,7 +12,7 @@ class Profile(models.Model):
     #TODO change the upload_to property
     avatar = models.ImageField(upload_to='users', default='no_picture.png')
     updated = models.DateTimeField(auto_now=True)
-    bio = models.TextField(max_length=250, default="", blank=True)
+    bio = models.TextField(max_length=250, default="", null=True, blank=True)
 
     def __str__(self):
         return f'{self.user.username}'
