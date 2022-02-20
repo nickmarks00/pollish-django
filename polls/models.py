@@ -5,16 +5,16 @@ from users.models import Profile
 # Create your models here.
 class Poll(models.Model):
     profile = models.ForeignKey(Profile, related_name='polls', on_delete=models.CASCADE)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     question_text = models.TextField(blank=False, default="")
 
     def __str__(self):
         return f"{self.question_text} by {self.profile.user.username}"
 
     class Meta:
-        unique_together = ['profile', 'created']  # user cannot create multiple posts at the same time
-        ordering = ['-updated']  # default ordering for posts is time of last update
+        unique_together = ['profile', 'created_at']  # user cannot create multiple posts at the same time
+        ordering = ['-updated_at']  # default ordering for posts is time of last update
   
 
 class Choice(models.Model):
@@ -37,4 +37,7 @@ class Comment(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='comments')
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='comments')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.comment_text}'
     
