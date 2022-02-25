@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Poll, Choice, Comment
 
-from users.serializers import ProfileSerializer
+from users.serializers import UserSerializer
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -9,30 +9,36 @@ class ChoiceSerializer(serializers.ModelSerializer):
     # ensures that the id is included
     # there may be issues here in the sense that the id is NOT read-only though it should be
     id = serializers.IntegerField(required=True)
-    profiles = ProfileSerializer(many=True)
+    users = UserSerializer(many=True)
     class Meta:
         model = Choice
-        fields = ('choice_text', 'id', 'choice_image', 'profiles', 'votes')
+        fields = ('choice_text', 'id', 'choice_image', 'users', 'votes')
 
 
 class CommentSerializer(serializers.ModelSerializer):
 
-    profile = ProfileSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ('comment_text', 'profile', 'created_at')
+        fields = ('comment_text', 'user', 'created_at')
 
 
 class PollSerializer(serializers.ModelSerializer):
 
-    choices = ChoiceSerializer(many=True)
-    profile = ProfileSerializer(read_only=True)
-    comments = CommentSerializer(many=True)
-    
+    # Meta class
     class Meta:
         model = Poll
-        fields = ('id', 'profile', 'updated', 'question_text', 'choices', 'comments')
+        fields = ('id', 'user', 'created_at', 'question_text', 'choices', 'num_comments')
+    
+    # Defined fields
+    choices = ChoiceSerializer(many=True)
+    user = UserSerializer(read_only=True)
+    num_comments = serializers.SerializerMethodField(method_name='count_comments')
+
+    # Serializer class methods
+    def count_comments(self, poll:Poll):
+        return poll.comments.count()
 
 
     # the following method handles creation of new choices
@@ -51,3 +57,12 @@ class PollSerializer(serializers.ModelSerializer):
 
         return instance
 
+class SimplePollSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Poll
+        fields = ('id', 'updated_at', 'question_text', 'total_votes')
+
+    total_votes = serializers.SerializerMethodField(method_name='get_total_votes')
+
+    def get_total_votes(self, poll: Poll):
+        return sum([choice.votes for choice in poll.choices.all() ])
