@@ -19,6 +19,7 @@ import debug_toolbar
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('polls/', include('polls.urls')),
+    path('content/', include('polls.urls')),
+    path('site/', include('users.urls')),
     path('__debug__/', include(debug_toolbar.urls))
 ]

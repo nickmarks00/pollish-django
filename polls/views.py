@@ -2,16 +2,40 @@ from django.shortcuts import render
 from rest_framework import generics, serializers, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
-from .serializers import ChoiceSerializer, PollSerializer
-from .models import Poll, Choice
 
-# Create your views here.
+from .serializers import ChoiceSerializer, CommentSerializer, PollSerializer,SimplePollSerializer
+from .models import Poll, Choice, Comment
 
-class PollView(generics.ListAPIView):
-    queryset = Poll.objects.select_related('profile').all()[:10]
+
+class SimplePollViewSet(ModelViewSet):
+    serializer_class = SimplePollSerializer
+
+    def get_queryset(self):
+        return Poll.objects.prefetch_related('choices').all()
+
+class DetailedPollViewSet(ModelViewSet):
+
     serializer_class = PollSerializer
 
+    def get_queryset(self):
+        return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments').filter(user_id=self.kwargs['user_pk'])
+    
+    def get_serializer_context(self):
+        return {'user_id': self.kwargs['user_pk']}
+
+
+class CommentViewSet(ModelViewSet):
+
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        return Comment.objects.select_related('user').filter(poll_id=self.kwargs['poll_pk'])
+    
+    def get_serializer_context(self):
+        return {'poll_id': self.kwargs['poll_pk']}
+    
 
 class RegisterVote(APIView):
 

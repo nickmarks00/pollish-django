@@ -45,20 +45,20 @@ class CommentInline(admin.TabularInline):
 @admin.register(Poll)
 class PollAdmin(admin.ModelAdmin):
     # Change form
-    autocomplete_fields = ['profile']
-    fields = ['question_text', 'created_at','updated_at', 'profile']
+    autocomplete_fields = ['user']
+    fields = ['question_text', 'created_at','updated_at', 'user']
     readonly_fields = ['created_at', 'updated_at']
     
 
     #Change list
-    list_display = ['question_text', 'created_at', 'updated_at', 'profile_link', 'choices_count', 'total_votes', 'comments_count']
+    list_display = ['question_text', 'created_at', 'updated_at', 'user_link', 'choices_count', 'total_votes', 'comments_count']
     list_editable = []
     list_per_page = 10
     list_prefetch_related = ['comments', 'choices']  #this is currently not doing anything...
 
-    ordering = ['-created_at', 'profile']
+    ordering = ['-created_at', 'user']
 
-    search_fields = ['question_text', 'profile__user__username']
+    search_fields = ['question_text', 'user__username']
 
     @admin.display(ordering='choice')
     def choices_count(self, poll):
@@ -68,15 +68,15 @@ class PollAdmin(admin.ModelAdmin):
     def comments_count(self, poll):
         return poll.comments.count()
     
-    @admin.display(ordering='profile')
-    def profile_link(self, poll):
+    @admin.display(ordering='user')
+    def user_link(self, poll):
         #TODO change so it filters the profile list rather than entering change view
         url = (
-            reverse('admin:users_profile_changelist')
-            + str(poll.profile.id)
+            reverse('admin:users_user_changelist')
+            + str(poll.user.id)
             + '/change'
         )
-        return format_html(f'<a href={url}>{poll.profile.user.username}</a>')
+        return format_html(f'<a href={url}>{poll.user.username}</a>')
     
     @admin.display(ordering='total_votes')
     def total_votes(self, poll):
@@ -88,19 +88,19 @@ class PollAdmin(admin.ModelAdmin):
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
     # Change form
-    autocomplete_fields = ['poll', 'profile']
-    fields = ['comment_text', 'created_at', 'profile', 'poll']
+    autocomplete_fields = ['poll', 'user']
+    fields = ['comment_text', 'created_at', 'user', 'poll']
     readonly_fields = ['created_at']
 
     # Change list
-    list_display = ['comment_text', 'created_at', 'poll_link', 'profile_link']
+    list_display = ['comment_text', 'created_at', 'poll_link', 'user_link']
     list_editable = []
     list_per_page = 100
-    list_select_related = ['profile', 'poll', 'profile__user']
+    list_select_related = ['poll', 'user']
 
     ordering = ['-created_at']
 
-    search_fields = ['comment_text', 'poll__question_text', 'profile__user__username']
+    search_fields = ['comment_text', 'poll__question_text', 'user__username']
 
     @admin.display(ordering='poll')
     def poll_link(self, comment:Comment):
@@ -112,12 +112,12 @@ class CommentAdmin(admin.ModelAdmin):
         )
         return format_html(f'<a href={url}>{comment.poll.id}</a>')
     
-    @admin.display(ordering='profile')
-    def profile_link(self, comment:Comment):
+    @admin.display(ordering='user')
+    def user_link(self, comment:Comment):
         #TODO change so it filters the profile list rather than entering change view
         url = (
-            reverse('admin:users_profile_changelist')
-            + str(comment.profile.id)
+            reverse('admin:users_user_changelist')
+            + str(comment.user.id)
             + '/change'
         )
-        return format_html(f'<a href={url}>{comment.profile.user.username}</a>')
+        return format_html(f'<a href={url}>{comment.user.username}</a>')
