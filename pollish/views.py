@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
-from .models import Poll, Choice, Comment
-from .serializers import ChoiceSerializer, CommentSerializer, PollSerializer,SimplePollSerializer
+from .models import Poll, Choice, Comment, Profile
+from .serializers import ChoiceSerializer, CommentSerializer, PollSerializer, SimplePollSerializer, ProfileSerializer
 
 
 class SimplePollViewSet(ModelViewSet):
@@ -63,3 +63,8 @@ class RegisterVote(APIView):
         return Response({'msg': 'bad serializer'}, status.HTTP_400_BAD_REQUEST)
             
 
+class ProfileViewSet(ModelViewSet):
+    serializer_class = ProfileSerializer
+
+    def get_queryset(self):
+        return Profile.objects.select_related('user').all()

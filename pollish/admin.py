@@ -2,9 +2,9 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 
-from core.models import Profile, User
+
 from .forms import PollForm
-from .models import Poll, Choice, Comment
+from .models import Poll, Choice, Comment, Profile
 
 
 @admin.register(Choice)
@@ -13,7 +13,7 @@ class ChoiceAdmin(admin.ModelAdmin):
     autocomplete_fields = ['poll']
     fields = ['choice_text', 'votes', 'choice_image', 'poll']
 
-    list_display = ['choice_text', 'poll_link', 'votes', 'choice_image']
+    list_display = ['choice_text', 'poll_link', 'votes']
     list_editable = []
     list_per_page = 50
     list_select_related = ['poll']
@@ -81,7 +81,21 @@ class PollAdmin(admin.ModelAdmin):
     @admin.display(ordering='total_votes')
     def total_votes(self, poll):
         return sum([choice.votes for choice in poll.choices.all() ])
-    
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    # Change form
+    autocomplete_fields = ['user']
+    fields = ['user', 'created_at', 'updated_at', 'avatar', 'bio']
+    readonly_fields = ['updated_at', 'created_at']
+
+    # Change list
+    list_display = ['user', 'updated_at', 'avatar',  'bio']
+    list_editable = []
+    list_per_page = 25
+
+    search_fields = ['user__username']
 
 
 

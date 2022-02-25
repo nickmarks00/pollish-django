@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from core.serializers import UserSerializer
-from .models import Poll, Choice, Comment
+from .models import Poll, Choice, Comment, PollImage, Profile
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -12,7 +12,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
     users = UserSerializer(many=True)
     class Meta:
         model = Choice
-        fields = ('choice_text', 'id', 'choice_image', 'users', 'votes')
+        fields = ('choice_text', 'id', 'users', 'votes')
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -24,12 +24,21 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ('comment_text', 'user', 'created_at')
 
 
+class PollImageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PollImage
+        fields = ['image_src', 'choice_id', 'poll_id']
+
+
 class PollSerializer(serializers.ModelSerializer):
+
+    images = PollImageSerializer(many=True)
 
     # Meta class
     class Meta:
         model = Poll
-        fields = ('id', 'user', 'created_at', 'question_text', 'choices', 'num_comments')
+        fields = ('id', 'user', 'created_at', 'question_text', 'choices', 'images',  'num_comments')
     
     # Defined fields
     choices = ChoiceSerializer(many=True)
@@ -66,3 +75,11 @@ class SimplePollSerializer(serializers.ModelSerializer):
 
     def get_total_votes(self, poll: Poll):
         return sum([choice.votes for choice in poll.choices.all() ])
+
+class ProfileSerializer(serializers.ModelSerializer):
+
+    user = UserSerializer(read_only=True)
+    class Meta:
+        model = Profile
+        fields = ['user', 'avatar', 'bio']
+

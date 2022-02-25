@@ -10,14 +10,15 @@ from . import views
 router = routers.DefaultRouter()
 # router.register('all', views.SimplePollViewSet, basename='polls')
 # router.register('detailed', views.DetailedPollViewSet, basename='polls-detailed' )
-router.register('polls', views.DetailedPollViewSet, basename='polls')
+# router.register('polls', views.DetailedPollViewSet, basename='polls')
+router.register('profiles', views.ProfileViewSet,  basename='profiles')
 
 
-# polls/<id>/comments
-polls_router = routers.NestedDefaultRouter(router, 'polls', lookup='poll')
-polls_router.register('comments', views.CommentViewSet, basename="poll-comments")
+# # polls/<id>/comments
+# polls_router = routers.NestedDefaultRouter(router, 'polls', lookup='poll')
+# polls_router.register('comments', views.CommentViewSet, basename="poll-comments")
 
-urlpatterns = router.urls + polls_router.urls
+urlpatterns = router.urls 
 
 # urlpatterns = [
 #     path('', SimplePollView.as_view()),

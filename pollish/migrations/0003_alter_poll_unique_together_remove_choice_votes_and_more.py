@@ -8,15 +8,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0002_profile_avatar_profile_bio_profile_updated_and_more'),
+        ('core', '0002_profile_avatar_profile_bio_profile_updated_and_more'),
         ('pollish', '0002_auto_20220114_0959'),
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='poll',
-            unique_together=set(),
-        ),
+        # migrations.AlterUniqueTogether(
+        #     name='poll',
+        #     unique_together=set(),
+        # ),
         migrations.RemoveField(
             model_name='choice',
             name='votes',
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='poll',
-            unique_together={('profile', 'created')},
+            unique_together={('created', 'profile')},
         ),
         migrations.CreateModel(
             name='ChoiceItem',

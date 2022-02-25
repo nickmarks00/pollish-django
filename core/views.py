@@ -3,22 +3,18 @@ from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ModelViewSet
 
 
-from core.serializers import ProfileSerializer, UserSerializer
+from core.serializers import UserSerializer
 
 
-from core.models import User, Profile
+from core.models import User
 
 class UserViewSet(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['username']
+    queryset = User.objects.all()
     search_fields = ['username', 'email']
+    serializer_class = UserSerializer
 
 
-class ProfileViewSet(ModelViewSet):
-    serializer_class = ProfileSerializer
 
-    def get_queryset(self):
-        return Profile.objects.select_related('user').all()
     
