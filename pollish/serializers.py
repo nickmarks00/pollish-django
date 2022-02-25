@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Poll, Choice, Comment
 
-from users.serializers import UserSerializer
+from core.serializers import UserSerializer
+from .models import Poll, Choice, Comment
 
 
 class ChoiceSerializer(serializers.ModelSerializer):

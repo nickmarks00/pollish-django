@@ -3,10 +3,10 @@ from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ModelViewSet
 
 
-from users.serializers import ProfileSerializer, UserSerializer
+from core.serializers import ProfileSerializer, UserSerializer
 
 
-from users.models import User, Profile
+from core.models import User, Profile
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()

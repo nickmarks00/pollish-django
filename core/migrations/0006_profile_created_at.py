@@ -7,7 +7,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0005_rename_updated_profile_updated_at'),
+        ('core', '0005_rename_updated_profile_updated_at'),
     ]
 
     operations = [

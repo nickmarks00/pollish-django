@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('users', '0002_profile_avatar_profile_bio_profile_updated_and_more'),
-        ('polls', '0002_auto_20220114_0959'),
+        ('pollish', '0002_auto_20220114_0959'),
     ]
 
     operations = [
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='poll',
             name='profile',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='polls', to='users.profile'),
+            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='polls', to='core.profile'),
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(
@@ -41,8 +41,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('votes', models.IntegerField(default=0, validators=[django.core.validators.MinValueValidator(0)])),
-                ('choice', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='polls.choice')),
-                ('profile', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='users.profile')),
+                ('choice', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='pollish.choice')),
+                ('profile', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='core.profile')),
             ],
         ),
         migrations.RemoveField(

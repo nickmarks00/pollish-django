@@ -1,12 +1,11 @@
-from django.shortcuts import render
-from rest_framework import generics, serializers, status
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
-from .serializers import ChoiceSerializer, CommentSerializer, PollSerializer,SimplePollSerializer
 from .models import Poll, Choice, Comment
+from .serializers import ChoiceSerializer, CommentSerializer, PollSerializer,SimplePollSerializer
 
 
 class SimplePollViewSet(ModelViewSet):

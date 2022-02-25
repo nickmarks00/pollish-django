@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('choice_text', models.CharField(default='Option A', max_length=60)),
                 ('votes', models.PositiveIntegerField(default=0)),
-                ('poll', models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='choices', to='polls.poll')),
+                ('poll', models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, related_name='choices', to='pollish.poll')),
             ],
         ),
     ]

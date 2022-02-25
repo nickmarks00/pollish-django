@@ -6,8 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0004_alter_profile_bio'),
-        ('polls', '0009_alter_choice_choice_text'),
+        ('core', '0004_alter_profile_bio'),
+        ('pollish', '0009_alter_choice_choice_text'),
     ]
 
     operations = [

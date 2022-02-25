@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('polls', '0010_alter_poll_options_rename_created_poll_created_at_and_more'),
+        ('pollish', '0010_alter_poll_options_rename_created_poll_created_at_and_more'),
     ]
 
     operations = [

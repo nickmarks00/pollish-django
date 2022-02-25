@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('polls', '0008_alter_choice_choice_image'),
+        ('pollish', '0008_alter_choice_choice_image'),
     ]
 
     operations = [

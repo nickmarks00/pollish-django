@@ -1,6 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
-from users.models import User
+from core.models import User
 
 # Create your models here.
 class Poll(models.Model):

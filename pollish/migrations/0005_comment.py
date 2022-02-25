@@ -7,8 +7,8 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0003_alter_profile_user'),
-        ('polls', '0004_choice_profiles_choice_votes_delete_choiceitem'),
+        ('core', '0003_alter_profile_user'),
+        ('pollish', '0004_choice_profiles_choice_votes_delete_choiceitem'),
     ]
 
     operations = [
@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('comment_text', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('poll', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='polls.poll')),
-                ('profile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='users.profile')),
+                ('poll', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='pollish.poll')),
+                ('profile', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='comments', to='core.profile')),
             ],
         ),
     ]

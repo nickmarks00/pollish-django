@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 
-from polls.forms import PollForm
-from users.models import Profile, User
+from core.models import Profile, User
+from .forms import PollForm
 from .models import Poll, Choice, Comment
 
 
