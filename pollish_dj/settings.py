@@ -44,8 +44,8 @@ INSTALLED_APPS = [
     'django_filters',
 
     # custom
-    'users.apps.UsersConfig', 
-    'polls.apps.PollsConfig'
+    'core.apps.CoreConfig', 
+    'pollish.apps.PollishConfig'
 ]
 
 MIDDLEWARE = [
@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'pollish_dj.wsgi.application'
 
 
 # Tells Django to use custom user model
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'core.User'
 
 
 # Database
@@ -145,3 +145,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 25
+}
