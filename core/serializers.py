@@ -1,9 +1,15 @@
+from djoser.serializers import UserSerializer as BaseUserSerializer, UserCreateSerializer as BaseUserCreateSerializer
+
 from rest_framework import serializers
-from .models import User
 
-class UserSerializer(serializers.ModelSerializer):
+class UserCreateSerializer(BaseUserCreateSerializer):
 
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
+    class Meta(BaseUserCreateSerializer.Meta):
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name']
+
+class UserSerializer(BaseUserSerializer):
+
+    #TODO Make 'id' field not appear in PUT/PATCH form
+    class Meta(BaseUserSerializer.Meta):
+        fields = ['id', 'username',  'email', 'first_name', 'last_name']
 

@@ -1,4 +1,6 @@
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -17,12 +19,19 @@ class SimplePollViewSet(ModelViewSet):
 class DetailedPollViewSet(ModelViewSet):
 
     serializer_class = PollSerializer
+    pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments').filter(user_id=self.kwargs['user_pk'])
+        try:
+            return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments').filter(user_id=self.kwargs['user_pk'])
+        except KeyError:
+            return Poll.objects.select_related('user').prefetch_related('comments', 'choices__users').all()
     
     def get_serializer_context(self):
-        return {'user_id': self.kwargs['user_pk']}
+        try:
+            return {'user_id': self.kwargs['user_pk']}
+        except KeyError:
+            return super().get_serializer_context() 
 
 
 class CommentViewSet(ModelViewSet):
@@ -68,3 +77,16 @@ class ProfileViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Profile.objects.select_related('user').all()
+
+
+    @action(detail=False, methods=['GET', 'PUT'])
+    def me(self, request):
+        (profile, created) = Profile.objects.get_or_create(user_id=request.user_id)
+        if request.method == "GET":
+            serializer = ProfileSerializer(profile)
+            return Response(serializer.data)
+        elif request.method == "POST":
+            serializer = ProfileSerializer(profile, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
