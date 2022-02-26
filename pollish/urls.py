@@ -9,7 +9,7 @@ from . import views
 
 router = routers.DefaultRouter()
 # router.register('all', views.SimplePollViewSet, basename='polls')
-# router.register('detailed', views.DetailedPollViewSet, basename='polls-detailed' )
+router.register('polls', views.DetailedPollViewSet, basename='polls' )
 # router.register('polls', views.DetailedPollViewSet, basename='polls')
 router.register('profiles', views.ProfileViewSet,  basename='profiles')
 

@@ -78,8 +78,8 @@ class SimplePollSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(read_only=True)
     class Meta:
         model = Profile
-        fields = ['user', 'avatar', 'bio']
+        fields = ['id', 'user_id', 'avatar', 'bio']
 
