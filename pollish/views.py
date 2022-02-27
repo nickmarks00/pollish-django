@@ -23,7 +23,7 @@ class DetailedPollViewSet(ModelViewSet):
 
     def get_queryset(self):
         try:
-            return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments').filter(user_id=self.kwargs['user_pk'])
+            return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(user_id=self.kwargs['user_pk'])
         except KeyError:
             return Poll.objects.select_related('user').prefetch_related('comments', 'choices__users').all()
     
