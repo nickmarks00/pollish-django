@@ -7,6 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('core', '0007_alter_profile_user'),
+        ('pollish', '0012_profile')
     ]
 
     operations = [

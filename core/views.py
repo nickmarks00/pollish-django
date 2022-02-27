@@ -11,14 +11,14 @@ class UserSearchFilter(SearchFilter):
         if request.query_params.get('username'):
             return ['^=username']
         elif request.query_params.get('email'):
-            return ['^email']
+            return ['^=email']
         
         return super().get_search_fields(view, request)
 class UserViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, UserSearchFilter]
     filterset_fields = ['username']
     queryset = User.objects.all()
-    search_fields = ['^=username', '^email']
+    search_fields = ['^=username', '^=email']
     serializer_class = UserSerializer
 
 
