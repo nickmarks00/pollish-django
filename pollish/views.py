@@ -34,6 +34,25 @@ class DetailedPollViewSet(ModelViewSet):
             return super().get_serializer_context() 
 
 
+    
+    # Function for returning authenticated users polls
+    @action(detail=False, methods=['GET', 'PUT'])
+    def me(self, request):
+        polls = Poll.objects.select_related('user').filter(user_id=request.user.id)
+        if polls.exists():
+            print(polls)
+            if request.method == "GET":
+                serializer = SimplePollSerializer(polls)
+                return Response(serializer.data)
+            elif request.method == "POST":
+                serializer = SimplePollSerializer(polls, data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response(serializer.data)
+        return Response([])
+
+
+
 class CommentViewSet(ModelViewSet):
 
     serializer_class = CommentSerializer
@@ -81,7 +100,7 @@ class ProfileViewSet(ModelViewSet):
 
     @action(detail=False, methods=['GET', 'PUT'])
     def me(self, request):
-        (profile, created) = Profile.objects.get_or_create(user_id=request.user_id)
+        (profile, created) = Profile.objects.get_or_create(user_id=request.user.id)
         if request.method == "GET":
             serializer = ProfileSerializer(profile)
             return Response(serializer.data)
@@ -89,4 +108,4 @@ class ProfileViewSet(ModelViewSet):
             serializer = ProfileSerializer(profile, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer)

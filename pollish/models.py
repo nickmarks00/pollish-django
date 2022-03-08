@@ -27,7 +27,7 @@ class Poll(models.Model):
 
 
     def __str__(self):
-        return f"{self.question_text} by {self.profile.user.username}"
+        return f"{self.question_text} by {self.user.username}"
 
     class Meta:
         unique_together = ['user', 'created_at']  # user cannot create multiple posts at the same time

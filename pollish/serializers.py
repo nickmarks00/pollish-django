@@ -33,7 +33,6 @@ class PollImageSerializer(serializers.ModelSerializer):
 
 class PollSerializer(serializers.ModelSerializer):
 
-    images = PollImageSerializer(many=True)
 
     # Meta class
     class Meta:
@@ -41,6 +40,7 @@ class PollSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'created_at', 'question_text', 'choices', 'images',  'num_comments')
     
     # Defined fields
+    images = PollImageSerializer(many=True)
     choices = ChoiceSerializer(many=True)
     user = UserSerializer(read_only=True)
     num_comments = serializers.SerializerMethodField(method_name='count_comments')
@@ -69,7 +69,7 @@ class PollSerializer(serializers.ModelSerializer):
 class SimplePollSerializer(serializers.ModelSerializer):
     class Meta:
         model = Poll
-        fields = ('id', 'updated_at', 'question_text', 'total_votes')
+        fields = ('id', 'updated_at', 'question_text', )
 
     total_votes = serializers.SerializerMethodField(method_name='get_total_votes')
 
