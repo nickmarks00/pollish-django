@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework import serializers
 
 from core.serializers import UserSerializer
@@ -8,11 +9,18 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
     # ensures that the id is included
     # there may be issues here in the sense that the id is NOT read-only though it should be
-    id = serializers.IntegerField(required=True)
-    users = UserSerializer(many=True)
+    users = UserSerializer(many=True, required=False)
     class Meta:
         model = Choice
         fields = ('choice_text', 'id', 'users', 'votes')
+    
+
+    def create(self, validated_data):
+        users = validated_data.pop('users')
+        print("hello")
+        choice = Choice.objects.create(**validated_data) # I think this should update an existing poll if found, not sure tho...
+        
+        return choice
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -33,48 +41,35 @@ class PollImageSerializer(serializers.ModelSerializer):
 
 class PollSerializer(serializers.ModelSerializer):
 
-
     # Meta class
     class Meta:
         model = Poll
-        fields = ('id', 'user', 'created_at', 'question_text', 'choices', 'images',  'num_comments')
+        fields = ('id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments')
     
     # Defined fields
-    images = PollImageSerializer(many=True)
+    images = PollImageSerializer(many=True, required=False)
     choices = ChoiceSerializer(many=True)
-    user = UserSerializer(read_only=True)
+    user_id = serializers.IntegerField(read_only=True) # ultimately this should be read_only because the post endpoint should be to polls/me
     num_comments = serializers.SerializerMethodField(method_name='count_comments')
 
     # Serializer class methods
     def count_comments(self, poll:Poll):
-        return poll.comments.count()
+        try:
+            return poll.comments.count()
+        except AttributeError:
+            return 0
 
 
-    # the following method handles creation of new choices
+    #the following method handles creation of new choices
     def create(self, validated_data):
-        choices_data = validated_data.pop('choices')
-        poll = Poll.objects.create(**validated_data) # I think this should update an existing poll if found, not sure tho...
-        for choice_data in choices_data:
-            Choice.objects.create(poll=poll, **choice_data)
+        choices = validated_data.pop('choices')
+        poll = Poll.objects.create(user_id=self.context['user_id'], **validated_data)
+        for choice in choices:
+            choice_text = choice.pop('choice_text')
+            c = Choice.objects.create(poll=poll, choice_text=choice_text)
+        
         return poll
 
-    # handles updating of existing choice (e.g. vote registered)
-    def update(self, instance, validated_data):
-        instance.choice_text = validated_data.get('choice_text', instance.choice_text)
-        instance.votes = validated_data.get('votes', instance.votes)
-        instance.save()
-
-        return instance
-
-class SimplePollSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Poll
-        fields = ('id', 'updated_at', 'question_text', )
-
-    total_votes = serializers.SerializerMethodField(method_name='get_total_votes')
-
-    def get_total_votes(self, poll: Poll):
-        return sum([choice.votes for choice in poll.choices.all() ])
 
 class ProfileSerializer(serializers.ModelSerializer):
 
