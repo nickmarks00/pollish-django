@@ -1,8 +1,9 @@
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
@@ -13,25 +14,28 @@ from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerialize
 
 
 
-# class PollImageUpload(APIView):
-    
-
-#     def post(self, request, format=None):
-#         print(request.data)
-#         serializer = PollImageSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PollViewSet(ModelViewSet):
+class PollImageUpload(GenericViewSet, CreateModelMixin):
     '''
     MultiPartParser+FormParser => use if sending data in HTML form format
     FileUploadParser => use if just sending a raw file in the request
     '''
     # handling the multi-format of images...
+
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated]
+    serializer_class = PollImageSerializer
+    
+
+    def post(self, request, format=None):
+        serializer = PollImageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PollViewSet(ModelViewSet):
     
 
     serializer_class = PollSerializer
