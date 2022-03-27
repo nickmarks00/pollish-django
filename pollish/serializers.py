@@ -34,9 +34,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class PollImageSerializer(serializers.ModelSerializer):
 
+    choice_id = serializers.IntegerField(required=False)
+    poll_id = serializers.IntegerField(required=True)
+
     class Meta:
         model = PollImage
-        fields = ['image_src', 'choice_id', 'poll_id']
+        fields = ['image', 'choice_id', 'poll_id']
 
 
 class PollSerializer(serializers.ModelSerializer):
