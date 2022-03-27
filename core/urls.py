@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework_nested import routers
 
 from . import views
-from pollish.views import DetailedPollViewSet, CommentViewSet
+from pollish.views import PollViewSet, CommentViewSet
 
 router = routers.DefaultRouter()
 router.register('users', views.UserViewSet, basename='users')
@@ -11,7 +11,7 @@ router.register('users', views.UserViewSet, basename='users')
 
 # /users/<id>/polls
 users_router = routers.NestedDefaultRouter(router, 'users', lookup='user')
-users_router.register('polls', DetailedPollViewSet, basename='polls')
+users_router.register('polls', PollViewSet, basename='polls')
 
 # /users/<id>/polls/<id>/comments
 polls_router = routers.NestedDefaultRouter(users_router, 'polls', lookup='poll')
