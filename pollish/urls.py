@@ -13,13 +13,8 @@ router.register('profiles', views.ProfileViewSet,  basename='profiles')
 router.register('images', views.PollImageUpload, basename='images')
 
 
-# # polls/<id>/comments
-# polls_router = routers.NestedDefaultRouter(router, 'polls', lookup='poll')
-# polls_router.register('comments', views.CommentViewSet, basename="poll-comments")
+# polls/<id>/comments
+polls_router = routers.NestedDefaultRouter(router, 'polls', lookup='poll')
+polls_router.register('comments', views.CommentViewSet, basename="comments")
 
-urlpatterns = router.urls 
-
-# urlpatterns = [
-#     path('', SimplePollView.as_view()),
-#     path('test', RegisterVote.as_view())
-# ]
+urlpatterns = router.urls + polls_router.urls

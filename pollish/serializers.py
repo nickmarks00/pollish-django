@@ -17,7 +17,6 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         users = validated_data.pop('users')
-        print("hello")
         choice = Choice.objects.create(**validated_data) # I think this should update an existing poll if found, not sure tho...
         
         return choice
@@ -25,11 +24,17 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
 
-    user = UserSerializer(read_only=True)
+    choice_id = serializers.IntegerField(required=False)
+    user_id = serializers.IntegerField(required=True)
 
     class Meta:
         model = Comment
-        fields = ('comment_text', 'user', 'created_at')
+        fields = ('choice_id', 'comment_text', 'user_id', 'created_at')
+    
+    def create(self, validated_data):
+        poll_id = self.context['poll_id']
+        print(poll_id)
+        return Comment.objects.create(poll_id=poll_id, **validated_data)
 
 
 class PollImageSerializer(serializers.ModelSerializer):

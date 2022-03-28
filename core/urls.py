@@ -7,8 +7,6 @@ from pollish.views import PollViewSet, CommentViewSet
 router = routers.DefaultRouter()
 router.register('users', views.UserViewSet, basename='users')
 
-
-
 # /users/<id>/polls
 users_router = routers.NestedDefaultRouter(router, 'users', lookup='user')
 users_router.register('polls', PollViewSet, basename='polls')
