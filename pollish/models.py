@@ -47,7 +47,6 @@ class Poll(models.Model):
 class Choice(models.Model):
     choice_text = models.CharField(max_length=255, blank=False, default="")
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices')
-    # I've added blank here so that the field is not required on form submisson -- not working currently
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='choices', blank=True)
     uuid = models.UUIDField(default=uuid4)
     votes = models.IntegerField(default=0, blank=False, validators=[MinValueValidator(0)])
