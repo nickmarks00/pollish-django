@@ -1,15 +1,16 @@
+from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.mixins import ListModelMixin, CreateModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
 from .models import Poll, Choice, Comment, PollImage, Profile
+from core.models import User
 from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer
 
 
@@ -22,7 +23,7 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
     # handling the multi-format of images...
 
     parser_classes = [MultiPartParser, FormParser]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     serializer_class = PollImageSerializer
 
     def get_queryset(self):
@@ -33,8 +34,7 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
     
 
     def post(self, request, format=None):
-        print('posting')
-        serializer = PollImageSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -61,10 +61,10 @@ class PollViewSet(ModelViewSet):
     def me(self, request):
         polls = Poll.objects.select_related('user').filter(user_id=request.user.id)
         if request.method == "GET" and polls.exists():
-            serializer = PollSerializer(polls, many=True)
+            serializer = self.serializer_class(polls, many=True)
             return Response(serializer.data)
         elif request.method == "POST":
-            serializer = PollSerializer(data=request.data, context={'user_id': request.user.id})
+            serializer = self.serializer_class(data=request.data, context={'user_id': request.user.id})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
@@ -83,32 +83,41 @@ class CommentViewSet(ModelViewSet):
         return {'poll_id': self.kwargs['poll_pk']}
     
 
-class RegisterVote(APIView):
+class RegisterVote(GenericViewSet, ListModelMixin, UpdateModelMixin, RetrieveModelMixin):
 
     serializer_class = ChoiceSerializer
 
-    def patch(self, request, format=None):
+    def get_queryset(self):
+        return Choice.objects.prefetch_related('users').filter(poll_id=self.kwargs['poll_pk'])
+    
+    def get_serializer_context(self):
+        return {'poll_id': self.kwargs['poll_pk']}
 
+
+    @action(detail=True, methods=['PATCH'])
+    def me(self, request, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
-            choice_id = serializer.data.get('id')
-
-            queryset = Choice.objects.filter(id=choice_id)
-            if not queryset.exists():
+            valid_choice_qset = Choice.objects.filter(id=self.kwargs['pk'])
+            if not valid_choice_qset.exists():
                 return Response({'msg': 'choice not found'}, status.HTTP_404_NOT_FOUND)
-            
-            choice = queryset[0]
+            user_voted_qset = valid_choice_qset.filter(users__id=request.user.id)
+            if len(user_voted_qset):
+                return Response({'user already voted for this option'}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
-            # check here that the session_key on the post creation != session_key on vote register i.e. the user can't vote on their own post
-
-            choice.votes += 1
-            choice.save(update_fields=['votes'])
+            # makes sure that fields only update if all other updates are successful
+            with transaction.atomic():
+                choice = valid_choice_qset[0]
+                choice.votes += 1
+                choice.save(update_fields=['votes'])
+                choice.users.add(request.user.id)
 
             return Response(ChoiceSerializer(choice).data, status=status.HTTP_202_ACCEPTED)
         
 
         return Response({'msg': 'bad serializer'}, status.HTTP_400_BAD_REQUEST)
-            
+
 
 class ProfileViewSet(ModelViewSet):
     serializer_class = ProfileSerializer

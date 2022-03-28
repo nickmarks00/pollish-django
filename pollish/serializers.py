@@ -7,8 +7,6 @@ from .models import Poll, Choice, Comment, PollImage, Profile
 
 class ChoiceSerializer(serializers.ModelSerializer):
 
-    # ensures that the id is included
-    # there may be issues here in the sense that the id is NOT read-only though it should be
     users = UserSerializer(many=True, required=False)
     class Meta:
         model = Choice

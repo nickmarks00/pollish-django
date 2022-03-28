@@ -1,6 +1,4 @@
-from asyncore import poll
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
 
 
@@ -19,5 +17,9 @@ polls_router.register('comments', views.CommentViewSet, basename="comments")
 
 # polls/<id>/images
 polls_router.register('images', views.PollImageUpload, basename='images' )
+
+# polls/<id>/choices
+polls_router.register('choices', views.RegisterVote, basename='choices' )
+
 
 urlpatterns = router.urls + polls_router.urls
