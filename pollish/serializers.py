@@ -40,11 +40,16 @@ class CommentSerializer(serializers.ModelSerializer):
 class PollImageSerializer(serializers.ModelSerializer):
 
     choice_id = serializers.IntegerField(required=False)
-    poll_id = serializers.IntegerField(required=True)
+    poll_id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PollImage
         fields = ['image', 'choice_id', 'poll_id']
+    
+    def create(self, validated_data):
+        poll_id = self.context['poll_id']
+        print(poll_id)
+        return PollImage.objects.create(poll_id=poll_id, **validated_data)
 
 
 class PollSerializer(serializers.ModelSerializer):

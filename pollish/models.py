@@ -74,13 +74,16 @@ class PollImage(models.Model):
 
     # specifies upload path for poll images
     def poll_directory_path(self, filename):
-        return f'user_{self.poll.user.id}/poll_{self.poll.id}/choice_{self.choice.id}/{filename}'
+        if self.choice:
+            return f'user_{self.poll.user.id}/poll_{self.poll.id}/choice_{self.choice.id}/{filename}'
+        return f'user_{self.poll.user.id}/poll_{self.poll.id}/{filename}'
 
     image = models.ImageField(upload_to=poll_directory_path)
     poll = models.ForeignKey(Poll, related_name="images", on_delete=models.CASCADE )
     choice = models.OneToOneField(Choice, null=True, on_delete=models.PROTECT)
 
     class Meta:
-        unique_together = ['poll', 'choice']
+        # unique_together = ['poll', 'choice']
+        pass
 
 

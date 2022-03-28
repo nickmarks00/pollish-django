@@ -9,12 +9,12 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
-from .models import Poll, Choice, Comment, Profile
+from .models import Poll, Choice, Comment, PollImage, Profile
 from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer
 
 
 
-class PollImageUpload(GenericViewSet, CreateModelMixin):
+class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
     '''
     MultiPartParser+FormParser => use if sending data in HTML form format
     FileUploadParser => use if just sending a raw file in the request
@@ -22,11 +22,18 @@ class PollImageUpload(GenericViewSet, CreateModelMixin):
     # handling the multi-format of images...
 
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = PollImageSerializer
+
+    def get_queryset(self):
+        return PollImage.objects.filter(poll_id=self.kwargs['poll_pk'])
+    
+    def get_serializer_context(self):
+        return {'poll_id': self.kwargs['poll_pk']}
     
 
     def post(self, request, format=None):
+        print('posting')
         serializer = PollImageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
