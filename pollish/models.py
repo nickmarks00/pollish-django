@@ -58,6 +58,7 @@ class Choice(models.Model):
 
 
 class Comment(models.Model):
+    choice = models.ForeignKey(Choice, on_delete=models.PROTECT, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     comment_text = models.TextField()
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='comments')
