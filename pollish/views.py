@@ -120,6 +120,9 @@ class RegisterVote(GenericViewSet, ListModelMixin, UpdateModelMixin, RetrieveMod
 
 
 class ProfileViewSet(ModelViewSet):
+
+    parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [IsAuthenticated]
     serializer_class = ProfileSerializer
 
     def get_queryset(self):
@@ -132,8 +135,8 @@ class ProfileViewSet(ModelViewSet):
         if request.method == "GET":
             serializer = ProfileSerializer(profile)
             return Response(serializer.data)
-        elif request.method == "POST":
+        elif request.method == "PUT":
             serializer = ProfileSerializer(profile, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer)
+            return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
