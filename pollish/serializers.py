@@ -8,9 +8,13 @@ from .models import Poll, Choice, Comment, PollImage, Profile
 class ChoiceSerializer(serializers.ModelSerializer):
 
     users = UserSerializer(many=True, required=False)
+    num_votes = serializers.SerializerMethodField(method_name='get_num_votes')
     class Meta:
         model = Choice
-        fields = ('choice_text', 'id', 'users', 'votes')
+        fields = ('choice_text', 'id', 'users', 'num_votes')
+    
+    def get_num_votes(self, choice:Choice):
+        return choice.users.all().count()
     
 
     def create(self, validated_data):
@@ -55,13 +59,14 @@ class PollSerializer(serializers.ModelSerializer):
     # Meta class
     class Meta:
         model = Poll
-        fields = ('id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments')
+        fields = ('id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments', 'user_vote')
     
     # Defined fields
     images = PollImageSerializer(many=True, required=False)
     choices = ChoiceSerializer(many=True)
-    user_id = serializers.IntegerField(read_only=True) # ultimately this should be read_only because the post endpoint should be to polls/me
+    user_id = serializers.IntegerField(read_only=True)
     num_comments = serializers.SerializerMethodField(method_name='count_comments')
+    user_vote = serializers.SerializerMethodField(method_name='get_user_vote')
 
     # Serializer class methods
     def count_comments(self, poll:Poll):
@@ -70,6 +75,13 @@ class PollSerializer(serializers.ModelSerializer):
         except AttributeError:
             return 0
 
+    def get_user_vote(self, poll:Poll):
+        user_id = self.context['user_id']
+        if user_id:
+            choice = poll.choices.filter(users__id=user_id)
+            if choice:
+                return choice[0].id
+        return None
 
     #the following method handles creation of new choices
     def create(self, validated_data):
