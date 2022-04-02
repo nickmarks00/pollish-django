@@ -9,13 +9,13 @@ class Profile(models.Model):
     def __str__(self):
         return f'{self.user.username}'
     
-    # can't access the instance.username, because this action  occurs before Django has access to that data
-    def upload_to(instance, filename):
-        return f'profiles/{instance}/{filename}'
+    def profile_path(self, filename):
+        return f'user_{self.user.id}/profile_{self.id}/{filename}'
+        
 
 
     #TODO change the upload_to property
-    avatar = models.ImageField(upload_to=upload_to, default='no_picture.png')
+    avatar = models.ImageField(upload_to=profile_path, default='no_picture.png')
     bio = models.TextField(max_length=250, default="", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
