@@ -42,7 +42,7 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PollViewSet(ModelViewSet):
+class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveModelMixin):
     
 
     serializer_class = PollSerializer
@@ -52,7 +52,12 @@ class PollViewSet(ModelViewSet):
         try:
             return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(user_id=self.kwargs['user_pk'])
         except KeyError:
-            return Poll.objects.select_related('user').prefetch_related('comments', 'choices__users').all()
+            return Poll.objects.select_related('user').prefetch_related('comments', 'choices__users', 'images').all()
+
+    
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}
+
     
 
 
@@ -104,14 +109,15 @@ class RegisterVote(GenericViewSet, ListModelMixin, UpdateModelMixin, RetrieveMod
                 return Response({'msg': 'choice not found'}, status.HTTP_404_NOT_FOUND)
             user_voted_qset = valid_choice_qset.filter(users__id=request.user.id)
             if len(user_voted_qset):
-                return Response({'user already voted for this option'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
-            # makes sure that fields only update if all other updates are successful
-            with transaction.atomic():
-                choice = valid_choice_qset[0]
-                choice.votes += 1
-                choice.save(update_fields=['votes'])
-                choice.users.add(request.user.id)
+                # user is de-registering vote
+                with transaction.atomic():
+                    choice = user_voted_qset[0]
+                    choice.users.remove(request.user.id)
+            else:
+                # makes sure that fields only update if all other updates are successful
+                with transaction.atomic():
+                    choice = valid_choice_qset[0]
+                    choice.users.add(request.user.id)
 
             return Response(ChoiceSerializer(choice).data, status=status.HTTP_202_ACCEPTED)
         
@@ -127,15 +133,16 @@ class ProfileViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Profile.objects.select_related('user').all()
+    
 
 
-    @action(detail=False, methods=['GET', 'PUT'])
+    @action(detail=False, methods=['GET', 'PATCH'])
     def me(self, request):
         (profile, created) = Profile.objects.get_or_create(user_id=request.user.id)
         if request.method == "GET":
             serializer = ProfileSerializer(profile)
             return Response(serializer.data)
-        elif request.method == "PUT":
+        elif request.method == "PATCH":
             serializer = ProfileSerializer(profile, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()

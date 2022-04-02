@@ -11,14 +11,14 @@ from .models import Poll, Choice, Comment, Profile
 class ChoiceAdmin(admin.ModelAdmin):
     # Change form
     autocomplete_fields = ['poll']
-    fields = ['choice_text', 'votes', 'choice_image', 'poll']
+    fields = ['choice_text', 'choice_image', 'poll']
 
-    list_display = ['choice_text', 'poll_link', 'votes']
+    list_display = ['choice_text', 'poll_link',]
     list_editable = []
     list_per_page = 50
     list_select_related = ['poll']
 
-    ordering = ['-votes']
+    ordering = []
 
     search_fields = ['choice_text', 'poll__question_text']
 
@@ -80,7 +80,7 @@ class PollAdmin(admin.ModelAdmin):
     
     @admin.display(ordering='total_votes')
     def total_votes(self, poll):
-        return sum([choice.votes for choice in poll.choices.all() ])
+        return sum([choice.users.all().count() for choice in poll.choices.all() ])
 
 
 @admin.register(Profile)

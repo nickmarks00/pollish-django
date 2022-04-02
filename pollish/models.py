@@ -49,11 +49,11 @@ class Choice(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices')
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='choices', blank=True)
     uuid = models.UUIDField(default=uuid4)
-    votes = models.IntegerField(default=0, blank=False, validators=[MinValueValidator(0)])
+    
 
 
     def __str__(self):
-        return "{} --- {}".format(self.poll.question_text,self.choice_text)
+        return self.choice_text
 
 
 class Comment(models.Model):
