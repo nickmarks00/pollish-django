@@ -1,4 +1,3 @@
-from django.core.validators import MinValueValidator
 from django.conf import settings
 from django.db import models
 from uuid import uuid4
@@ -10,11 +9,9 @@ class Profile(models.Model):
         return f'{self.user.username}'
     
     def profile_path(self, filename):
-        return f'user_{self.user.id}/profile_{self.id}/{filename}'
+        return f'users/user_{self.user.id}/profile_{self.id}/{filename}'
         
 
-
-    #TODO change the upload_to property
     avatar = models.ImageField(upload_to=profile_path, default='no_picture.png')
     bio = models.TextField(max_length=250, default="", null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -23,7 +20,17 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     uuid = models.UUIDField(default=uuid4)
 
-    
+
+class Community(models.Model):
+
+    def community_directory_path(self, filename):
+        return f'communities/community_{self.name}/{filename}'
+
+    name = models.CharField(max_length=255)
+    image = models.ImageField(upload_to=community_directory_path)
+    users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='communities', blank=True)
+
+
 
 
 class Poll(models.Model):
@@ -31,13 +38,12 @@ class Poll(models.Model):
     def __str__(self):
         return f"{self.question_text} by {self.user.username}"
 
+    community = models.ForeignKey(Community, related_name='polls', blank=True, null=True, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     question_text = models.TextField(blank=False, default="")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='polls', on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
     uuid = models.UUIDField(default=uuid4)
-
-
 
     class Meta:
         unique_together = ['user', 'created_at']  # user cannot create multiple posts at the same time
@@ -50,8 +56,6 @@ class Choice(models.Model):
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='choices', blank=True)
     uuid = models.UUIDField(default=uuid4)
     
-
-
     def __str__(self):
         return self.choice_text
 
@@ -74,7 +78,7 @@ class PollImage(models.Model):
     # specifies upload path for poll images
     def poll_directory_path(self, filename):
         if self.choice:
-            return f'user_{self.poll.user.id}/poll_{self.poll.id}/choice_{self.choice.id}/{filename}'
+            return f'users/user_{self.poll.user.id}/poll_{self.poll.id}/choice_{self.choice.id}/{filename}'
         return f'user_{self.poll.user.id}/poll_{self.poll.id}/{filename}'
 
     image = models.ImageField(upload_to=poll_directory_path)
@@ -84,5 +88,6 @@ class PollImage(models.Model):
     class Meta:
         # unique_together = ['poll', 'choice']
         pass
+
 
 

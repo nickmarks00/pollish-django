@@ -9,9 +9,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
-from .models import Poll, Choice, Comment, PollImage, Profile
+from .models import Poll, Choice, Comment, PollImage, Profile, Community
 from core.models import User
-from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer
+from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer, CommunitySerializer
 
 
 
@@ -147,3 +147,9 @@ class ProfileViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+
+
+class CommunityViewSet(ModelViewSet):
+
+    serializer_class = CommunitySerializer
+    queryset = Community.objects.all()

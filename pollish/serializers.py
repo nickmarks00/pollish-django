@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from core.serializers import UserSerializer
-from .models import Poll, Choice, Comment, PollImage, Profile
+from .models import Community, Poll, Choice, Comment, PollImage, Profile
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -101,3 +101,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id', 'user_id', 'avatar', 'bio']
 
+
+
+class CommunitySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Community
+        fields = ['name', 'image']
