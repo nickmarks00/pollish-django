@@ -31,6 +31,8 @@ class Community(models.Model):
     image = models.ImageField(upload_to=community_directory_path)
     name = models.CharField(max_length=255)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='communities', blank=True)
+    uuid = models.UUIDField(default=uuid4)
+
 
 
 
