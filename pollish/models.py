@@ -26,8 +26,10 @@ class Community(models.Model):
     def community_directory_path(self, filename):
         return f'communities/community_{self.name}/{filename}'
 
-    name = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     image = models.ImageField(upload_to=community_directory_path)
+    name = models.CharField(max_length=255)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='communities', blank=True)
 
 
