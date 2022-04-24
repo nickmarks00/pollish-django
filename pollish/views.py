@@ -45,9 +45,10 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
 
 class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveModelMixin):
     
-
-    serializer_class = PollSerializer
+    filter_backends = [SearchFilter]
     pagination_class = PageNumberPagination
+    search_fields = ['question_text']
+    serializer_class = PollSerializer
 
     def get_queryset(self):
         user_id = self.kwargs.get('user_pk', None)
