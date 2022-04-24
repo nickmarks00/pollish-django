@@ -178,7 +178,7 @@ class CommunityViewSet(ModelViewSet):
         queryset = Community.objects.filter(id=self.kwargs['pk'])
 
         if not queryset.exists():
-                return Response({'msg': 'choice not found'}, status.HTTP_404_NOT_FOUND)
+                return Response({'msg': 'community not found'}, status.HTTP_404_NOT_FOUND)
 
         community = queryset[0]
 
