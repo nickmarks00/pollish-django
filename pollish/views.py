@@ -1,17 +1,18 @@
 from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.filters import SearchFilter
 from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
-from .models import Poll, Choice, Comment, PollImage, Profile
+from .models import Poll, Choice, Comment, PollImage, Profile, Community
 from core.models import User
-from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer
+from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer, CommunitySerializer
 
 
 
@@ -49,16 +50,19 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
-        try:
-            return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(user_id=self.kwargs['user_pk'])
-        except KeyError:
+        user_id = self.kwargs.get('user_pk', None)
+        community_id = self.kwargs.get('community_pk', None)
+
+        if user_id:
+            return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(user_id=user_id)
+        elif community_id:
+            return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(community_id=community_id)
+        else:
             return Poll.objects.select_related('user').prefetch_related('comments', 'choices__users', 'images').all()
 
     
     def get_serializer_context(self):
         return {'user_id': self.request.user.id}
-
-    
 
 
     # Function for returning authenticated users polls
@@ -135,7 +139,6 @@ class ProfileViewSet(ModelViewSet):
         return Profile.objects.select_related('user').all()
     
 
-
     @action(detail=False, methods=['GET', 'PATCH'])
     def me(self, request):
         (profile, created) = Profile.objects.get_or_create(user_id=request.user.id)
@@ -147,3 +150,70 @@ class ProfileViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+
+
+class CommunityViewSet(ModelViewSet):
+
+    filter_backends = [SearchFilter]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+    permission_classes = [IsAuthenticated]
+    queryset = Community.objects.select_related('created_by').prefetch_related('polls', 'users').all()
+    search_fields = ['name']
+    serializer_class = CommunitySerializer
+
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data, context={'user_id': self.request.user.id})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        poll_id = request.query_params.get('poll_id')
+        update_user = request.query_params.get('update_user', 'False')
+        user_id = request.user.id
+
+        queryset = Community.objects.filter(id=self.kwargs['pk'])
+
+        if not queryset.exists():
+                return Response({'msg': 'choice not found'}, status.HTTP_404_NOT_FOUND)
+
+        community = queryset[0]
+
+        name = request.data.get('name', community.name)
+        image = request.data.get('image', community.image)
+        
+        if poll_id is not None:
+            poll_queryset = Poll.objects.filter(id=poll_id)
+            community_queryset = community.polls.filter(id=poll_id)
+            if len(community_queryset):
+                poll = poll_queryset[0]
+                community.polls.remove(poll)
+            elif len(poll_queryset):
+                poll = poll_queryset[0]
+                community.polls.add(poll)
+            else:
+                return Response('Poll not found with that id', status=status.HTTP_400_BAD_REQUEST)
+        elif user_id is not None and update_user == 'True':
+            user_queryset = User.objects.filter(id=user_id)
+            community_queryset = community.users.filter(id=user_id)
+            if len(community_queryset):
+                user = user_queryset[0]
+                community.users.remove(user)
+            elif len(user_queryset):
+                user = user_queryset[0]
+                community.users.add(user)
+            else:
+                return Response('User not found with that id', status=status.HTTP_400_BAD_REQUEST)
+        elif name or image:
+            community.name = name
+            community.image = image
+            community.save(update_fields=['name', 'image'])
+
+        else:
+            return Response('Error in body', status=status.HTTP_400_BAD_REQUEST)
+
+
+        return Response(CommunitySerializer(community, context={'user_id': user_id}).data, status=status.HTTP_202_ACCEPTED)

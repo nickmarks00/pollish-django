@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from core.serializers import UserSerializer
-from .models import Poll, Choice, Comment, PollImage, Profile
+from .models import Community, Poll, Choice, Comment, PollImage, Profile
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -76,7 +76,7 @@ class PollSerializer(serializers.ModelSerializer):
             return 0
 
     def get_user_vote(self, poll:Poll):
-        user_id = self.context['user_id']
+        user_id = self.context.get('user_id')
         if user_id:
             choice = poll.choices.filter(users__id=user_id)
             if choice:
@@ -101,3 +101,19 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id', 'user_id', 'avatar', 'bio']
 
+
+
+class CommunitySerializer(serializers.ModelSerializer):
+
+    polls = PollSerializer(many=True, read_only=True)
+    users = UserSerializer(many=True, read_only=True)
+    created_by = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Community
+        fields = ['name', 'image', 'polls', 'users', 'created_by', 'created_at']
+
+    def create(self, validated_data):
+        community = Community.objects.create(created_by_id=self.context['user_id'], **validated_data)
+
+        return community
