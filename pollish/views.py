@@ -47,18 +47,22 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
     
     filter_backends = [SearchFilter]
     pagination_class = PageNumberPagination
+    permission_classes = [IsAuthenticated]
     search_fields = ['question_text']
     serializer_class = PollSerializer
+
 
     def get_queryset(self):
         user_id = self.kwargs.get('user_pk', None)
         community_id = self.kwargs.get('community_pk', None)
 
         if user_id:
+            print('a')
             return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(user_id=user_id)
         elif community_id:
             return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(community_id=community_id)
         else:
+            print('c')
             return Poll.objects.select_related('user').prefetch_related('comments', 'choices__users', 'images').all()
 
     
@@ -85,6 +89,8 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
 class CommentViewSet(ModelViewSet):
 
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
 
     def get_queryset(self):
         return Comment.objects.select_related('user').filter(poll_id=self.kwargs['poll_pk'])
@@ -96,6 +102,8 @@ class CommentViewSet(ModelViewSet):
 class RegisterVote(GenericViewSet, ListModelMixin, UpdateModelMixin, RetrieveModelMixin):
 
     serializer_class = ChoiceSerializer
+    permission_classes = [IsAuthenticated]
+
 
     def get_queryset(self):
         return Choice.objects.prefetch_related('users').filter(poll_id=self.kwargs['poll_pk'])
@@ -158,12 +166,13 @@ class CommunityViewSet(ModelViewSet):
     filter_backends = [SearchFilter]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     permission_classes = [IsAuthenticated]
-    queryset = Community.objects.select_related('created_by').prefetch_related('polls', 'users').all()
+    queryset = Community.objects.select_related('created_by').prefetch_related('polls__choices__users', 'polls__comments', 'polls__user', 'users').all()
     search_fields = ['name']
     serializer_class = CommunitySerializer
 
     def get_serializer_context(self):
-        return {'user_id': self.request.user.id}
+        return {'user_id': self.request.user.id,
+                'is_community': True}
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data, context={'user_id': self.request.user.id})

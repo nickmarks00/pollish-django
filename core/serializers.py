@@ -9,7 +9,7 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name']
 
 
-class FollowingUserSerializer(serializers.ModelSerializer):
+class SimpleUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
@@ -18,7 +18,7 @@ class FollowingUserSerializer(serializers.ModelSerializer):
 class UserSerializer(BaseUserSerializer):
 
     #TODO Make 'id' field not appear in PUT/PATCH form
-    following = FollowingUserSerializer(many=True, read_only=True)
+    following = SimpleUserSerializer(many=True, read_only=True)
     class Meta(BaseUserSerializer.Meta):
         fields = ['id', 'username',  'email', 'first_name', 'last_name', 'following']
 
