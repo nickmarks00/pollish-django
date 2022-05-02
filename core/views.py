@@ -1,5 +1,8 @@
+from django.db import connection
+from django.urls import resolve
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -7,8 +10,9 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 
-from core.serializers import UserSerializer
+from core.serializers import SimpleUserSerializer, UserSerializer
 from core.models import User
+
 
 class UserSearchFilter(SearchFilter):
     def get_search_fields(self, view, request):
@@ -25,7 +29,55 @@ class UserViewSet(ModelViewSet):
     # permission_classes = [IsAuthenticated]
     queryset = User.objects.prefetch_related('following').all()
     search_fields = ['^username', '^email']
-    serializer_class = UserSerializer
+
+
+    def get_serializer_class(self):
+        if resolve(self.request.path_info).url_name == 'users-followers' or 'users-following':
+            return SimpleUserSerializer
+        return UserSerializer
+
+
+    @action(detail=True, methods=['GET'])
+    def followers(self, request, *args, **kwargs):
+
+        user_id = self.kwargs.get('pk', None)
+        users = User.objects.filter(following__in=[user_id])
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(users, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['GET'])
+    def following(self, request, *args, **kwargs):
+        '''
+        Endpoint at /core/users/<id1>/following/?id=<id2>
+        returns True if id1 following id2, else False
+        '''
+
+        user_id = self.kwargs.get('pk', None)
+        id2 = request.query_params.get('id', None)
+        
+        queryset = User.objects.filter(id=user_id)
+
+        if id2 is not None:
+            if queryset.exists():
+                queryset = queryset.filter(following__in=[id2])
+
+                if len(queryset) == 1:
+                    return Response(True)
+                elif not len(queryset):
+                    return Response(False)
+                else:
+                    return Response('More than one user found', status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response('Bad queryset', status=status.HTTP_400_BAD_REQUEST)
+        else:
+            serializer_class = self.get_serializer_class()
+            serializer = serializer_class(queryset[0].following.all(), many=True)
+            return Response(serializer.data)
+
+        
+
+     
 
 
     def update(self, request, *args, **kwargs):

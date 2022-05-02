@@ -183,7 +183,7 @@ class CommunityViewSet(ModelViewSet):
     def get_queryset(self):
         user_id = self.kwargs.get('user_pk', None)
         if user_id is not None:
-            return Community.objects.filter(users__in=user_id)
+            return Community.objects.filter(users__in=[user_id])
         return Community.objects.all()
 
     def create(self, request):

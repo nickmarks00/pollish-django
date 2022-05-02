@@ -2,6 +2,8 @@ from djoser.serializers import UserSerializer as BaseUserSerializer, UserCreateS
 from rest_framework import serializers
 
 from .models import User
+from pollish.base_serializers import SimpleProfileSerializer
+
 
 class UserCreateSerializer(BaseUserCreateSerializer):
 
@@ -11,14 +13,17 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 
 class SimpleUserSerializer(serializers.ModelSerializer):
 
+    profile = SimpleProfileSerializer(read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
 
 class UserSerializer(BaseUserSerializer):
 
     #TODO Make 'id' field not appear in PUT/PATCH form
     following = SimpleUserSerializer(many=True, read_only=True)
+    profile = SimpleProfileSerializer(read_only=True)
+
     class Meta(BaseUserSerializer.Meta):
-        fields = ['id', 'username',  'email', 'first_name', 'last_name', 'following']
+        fields = ['id', 'username',  'email', 'first_name', 'last_name', 'following', 'profile']
 
