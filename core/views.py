@@ -22,7 +22,7 @@ class UserViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, UserSearchFilter]
     filterset_fields = ['username']
     pagination_class = PageNumberPagination
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = User.objects.prefetch_related('following').all()
     search_fields = ['^username', '^email']
     serializer_class = UserSerializer

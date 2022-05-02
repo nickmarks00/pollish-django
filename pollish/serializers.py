@@ -137,3 +137,11 @@ class CommunitySerializer(serializers.ModelSerializer):
         community = Community.objects.create(created_by_id=self.context['user_id'], **validated_data)
 
         return community
+
+class SimpleCommunitySerializer(serializers.ModelSerializer):
+
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Community
+        fields = ['name', 'image', 'id']
