@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from .models import Poll, Choice, Comment, PollImage, Profile, Community
 from core.models import User
-from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer, CommunitySerializer
+from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer, CommunitySerializer, SimpleCommunitySerializer
 
 
 
@@ -165,14 +165,26 @@ class CommunityViewSet(ModelViewSet):
 
     filter_backends = [SearchFilter]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = Community.objects.select_related('created_by').prefetch_related('polls__choices__users', 'polls__comments', 'polls__user', 'users').all()
     search_fields = ['name']
     serializer_class = CommunitySerializer
 
+    def get_serializer_class(self):
+        user_id = self.kwargs.get('user_pk', None)
+        if user_id is not None:
+            return SimpleCommunitySerializer
+        return CommunitySerializer
+
     def get_serializer_context(self):
         return {'user_id': self.request.user.id,
                 'is_community': True}
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_pk', None)
+        if user_id is not None:
+            return Community.objects.filter(users__in=user_id)
+        return Community.objects.all()
 
     def create(self, request):
         serializer = self.serializer_class(data=request.data, context={'user_id': self.request.user.id})
