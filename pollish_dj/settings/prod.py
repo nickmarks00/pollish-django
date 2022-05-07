@@ -1,8 +1,8 @@
+import os
 from .common import *
-from decouple import config
 
 DEBUG = False
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = os.environ['SECRET_KEY']
 
-ALLOWED_HOSTS = [config('DEV_IP')]
+ALLOWED_HOSTS = ['pollish-prod.herokuapp.com']
