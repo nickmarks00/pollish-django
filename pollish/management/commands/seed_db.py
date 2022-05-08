@@ -4,7 +4,7 @@ from pathlib import Path
 import os
 
 class Command(BaseCommand):
-    help = 'Populates connected MySQL client with data'
+    help = 'Populates connected database client with data'
 
     def handle(self, *args, **kwargs):
         print('Populating database...')
