@@ -70,19 +70,6 @@ WSGI_APPLICATION = 'pollish_dj.wsgi.application'
 AUTH_USER_MODEL = 'core.User'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'pollish', # name of db in mysql / datagrip
-        'HOST': 'localhost',
-        'USER': 'root',
-        'PASSWORD': config('MYSQL_ROOT')
-    }
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
