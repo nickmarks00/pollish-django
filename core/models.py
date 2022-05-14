@@ -9,3 +9,5 @@ class User(AbstractUser):
     following = models.ManyToManyField('User', related_name='followers')
 
 
+    class Meta:
+        ordering = ['id']

@@ -24,7 +24,7 @@ class UserSearchFilter(SearchFilter):
         return super().get_search_fields(view, request)
 class UserViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, UserSearchFilter]
-    filterset_fields = ['username']
+    filterset_fields = ['username', 'email']
     pagination_class = PageNumberPagination
     # permission_classes = [IsAuthenticated]
     queryset = User.objects.prefetch_related('following').all()
