@@ -32,9 +32,7 @@ class Community(models.Model):
     name = models.CharField(max_length=255)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='communities', blank=True)
     uuid = models.UUIDField(default=uuid4)
-
-
-
+    
 
 
 class Poll(models.Model):
