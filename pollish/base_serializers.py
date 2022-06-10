@@ -5,4 +5,4 @@ class SimpleProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'avatar']
+        fields = ['id', 'avatar', 'bio']

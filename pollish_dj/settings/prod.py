@@ -11,3 +11,6 @@ ALLOWED_HOSTS = ['pollish-prod.herokuapp.com']
 DATABASES = {
     'default': dj_database_url.config()
 }
+
+
+WSGI_APPLICATION = 'pollish_dj.wsgi.application'
