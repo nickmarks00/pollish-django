@@ -63,8 +63,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'pollish_dj.wsgi.application'
-
 
 # Tells Django to use custom user model
 AUTH_USER_MODEL = 'core.User'

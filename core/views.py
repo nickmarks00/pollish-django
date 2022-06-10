@@ -75,10 +75,6 @@ class UserViewSet(ModelViewSet):
             serializer = serializer_class(queryset[0].following.all(), many=True)
             return Response(serializer.data)
 
-        
-
-     
-
 
     def update(self, request, *args, **kwargs):
         user_to_follow_id = request.query_params.get('user_id')
