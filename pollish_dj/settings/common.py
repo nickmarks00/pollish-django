@@ -50,7 +50,7 @@ ROOT_URLCONF = 'pollish_dj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates'],
+        'DIRS': [ BASE_DIR / 'pollish_dj' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
