@@ -74,12 +74,21 @@ class SimplePollSerializer(serializers.ModelSerializer):
     def count_votes(self, poll:Poll):
         return sum([choice.users.count() for choice in poll.choices.all()])
 
+
+class SimpleCommunitySerializer(serializers.ModelSerializer):
+
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Community
+        fields = ['name', 'id']
+
 class PollSerializer(serializers.ModelSerializer):
 
     # Meta class
     class Meta:
         model = Poll
-        fields = ('id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments', 'user_vote')
+        fields = ('community', 'id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments', 'user_vote')
     
     # Defined fields
     images = PollImageSerializer(many=True, required=False)
@@ -87,6 +96,7 @@ class PollSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(read_only=True)
     num_comments = serializers.SerializerMethodField(method_name='count_comments')
     user_vote = serializers.SerializerMethodField(method_name='get_user_vote')
+    community = SimpleCommunitySerializer()
 
     # Serializer class methods
     def count_comments(self, poll:Poll):
@@ -119,7 +129,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(read_only=True)
     class Meta:
         model = Profile
-        fields = ['id', 'user_id', 'avatar', 'bio']
+        fields = ['id', 'user_id', 'avatar', 'bio', 'votes_registered']
 
 
 
@@ -138,10 +148,4 @@ class CommunitySerializer(serializers.ModelSerializer):
 
         return community
 
-class SimpleCommunitySerializer(serializers.ModelSerializer):
 
-    id = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Community
-        fields = ['name', 'image', 'id']

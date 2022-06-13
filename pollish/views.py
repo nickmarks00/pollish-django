@@ -126,11 +126,24 @@ class RegisterVote(GenericViewSet, ListModelMixin, UpdateModelMixin, RetrieveMod
                 with transaction.atomic():
                     choice = user_voted_qset[0]
                     choice.users.remove(request.user.id)
+
+                    profile_qs = Profile.objects.filter(user_id=request.user.id)
+                    profile = profile_qs[0]
+
+                    profile.votes_registered -= 1
+                    profile.save()
+
             else:
                 # makes sure that fields only update if all other updates are successful
                 with transaction.atomic():
                     choice = valid_choice_qset[0]
                     choice.users.add(request.user.id)
+
+                    profile_qs = Profile.objects.filter(user_id=request.user.id)
+                    profile = profile_qs[0]
+
+                    profile.votes_registered += 1
+                    profile.save()
 
             return Response(ChoiceSerializer(choice).data, status=status.HTTP_202_ACCEPTED)
         

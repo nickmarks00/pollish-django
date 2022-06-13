@@ -19,6 +19,7 @@ class Profile(models.Model):
     # removes dependency of Profile on specific User model
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     uuid = models.UUIDField(default=uuid4)
+    votes_registered = models.PositiveIntegerField(default=0)
 
 
 class Community(models.Model):
