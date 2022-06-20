@@ -1,4 +1,3 @@
-from django.conf import settings
 from rest_framework import serializers
 
 from core.serializers import SimpleUserSerializer
@@ -96,7 +95,7 @@ class PollSerializer(serializers.ModelSerializer):
     user_id = serializers.IntegerField(read_only=True)
     num_comments = serializers.SerializerMethodField(method_name='count_comments')
     user_vote = serializers.SerializerMethodField(method_name='get_user_vote')
-    community = SimpleCommunitySerializer()
+    community = SimpleCommunitySerializer(required=False)
 
     # Serializer class methods
     def count_comments(self, poll:Poll):

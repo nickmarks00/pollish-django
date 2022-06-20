@@ -57,12 +57,10 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
         community_id = self.kwargs.get('community_pk', None)
 
         if user_id:
-            print('a')
             return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(user_id=user_id)
         elif community_id:
             return Poll.objects.select_related('user').prefetch_related('choices__users', 'comments', 'images').filter(community_id=community_id)
         else:
-            print('c')
             return Poll.objects.select_related('user').prefetch_related('comments', 'choices__users', 'images').all()
 
     
@@ -81,7 +79,7 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
             serializer = self.serializer_class(data=request.data, context={'user_id': request.user.id})
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response([])
 
 
@@ -178,7 +176,7 @@ class CommunityViewSet(ModelViewSet):
 
     filter_backends = [SearchFilter]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     queryset = Community.objects.select_related('created_by').prefetch_related('polls__choices__users', 'polls__comments', 'polls__user', 'users').all()
     search_fields = ['name']
     serializer_class = CommunitySerializer
