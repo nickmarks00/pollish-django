@@ -14,31 +14,39 @@ def create_poll(api_client):
 
 @pytest.mark.django_db
 class TestCreatePoll:
-	def test_if_user_anonymous_returns_401(self, create_poll):
+	def test_if_user_anonymous_returns_403(self, create_poll):
 
 		response = create_poll({})
 
-		assert response.status_code == status.HTTP_401_UNAUTHORIZED
+		assert response.status_code == status.HTTP_403_FORBIDDEN
 
-	@pytest.mark.skip
 	def test_if_invalid_data_returns_400(self, authenticate, create_poll):
 		
 		authenticate()
 
 		response = create_poll({'question_text': ''})
 
-		print(response.data.__dict__)
-
 		assert response.status_code == status.HTTP_400_BAD_REQUEST
 		# check for error message on return body
-		assert response.data['question_text'] is not None
+		assert response.data['choices'] is not None
+
 
 	@pytest.mark.skip
-	def test_if_valid_data_returns_201(self, authenticate, create_poll):
+	def test_if_valid_poll_data_returns_201(self, api_client, create_poll):
 
-		authenticate()
+		username = "user1"
+		password = "bar"
+		user = django_user_model.objects.create_user(username=username, password=password)
+		# Use this:
+		api_client.force_login(user)
+		# Or this:
+		api_client.login(username=username, password=password)
 
-		response = create_poll({'question_text': 'A'})
+		response = create_poll({'question_text': 'A', 'choices': [{
+			'choice_text': 'Option 1'
+		}, {
+			'choice_text': 'Option 2'
+		}]})
 
 		assert response.status_code == status.HTTP_201_CREATED
 

@@ -16,7 +16,7 @@ def create_community(api_client):
 @pytest.mark.django_db
 class TestCreateCommunity:
 
-    def test_if_anonymous_returns_401(self, create_community):
+    def test_if_anonymous_returns_403(self, create_community):
         img = ('media/communities/community_Animals/gary-bendig-6GMq7AGxNbE-unsplash.jpg')
 
         with open(img, 'rb') as in_image:
@@ -26,4 +26,4 @@ class TestCreateCommunity:
             }
 
             response = create_community(community)
-            assert response.status_code == status.HTTP_401_UNAUTHORIZED
+            assert response.status_code == status.HTTP_403_FORBIDDEN
