@@ -17,4 +17,5 @@ users_router.register('communities', CommunityViewSet, basename='communities')
 polls_router = routers.NestedDefaultRouter(users_router, 'polls', lookup='poll')
 polls_router.register('comments', CommentViewSet, basename="poll-comments")
 
+
 urlpatterns = router.urls + users_router.urls + polls_router.urls
