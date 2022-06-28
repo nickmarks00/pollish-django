@@ -1,6 +1,7 @@
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+from rest_framework.pagination import PageNumberPagination
 import os
 
 
@@ -116,7 +117,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': None,
+    'DEFAULT_PAGINATION_CLASS': PageNumberPagination,
     'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -129,7 +130,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
 # tells Django that auth requests will be prefixed in the header by JWT
    'AUTH_HEADER_TYPES': ('JWT',),
-   'ACCESS_TOKEN_LIFETIME': timedelta(seconds=30)
+   'ACCESS_TOKEN_LIFETIME': timedelta(hours=1)
 }
 
 DJOSER = {
