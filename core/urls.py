@@ -1,7 +1,5 @@
-from django.urls import path, include
 from rest_framework_nested import routers
 
-from . import playground
 from . import views
 from pollish.views import PollViewSet, CommentViewSet, CommunityViewSet
 
@@ -19,9 +17,4 @@ users_router.register('communities', CommunityViewSet, basename='communities')
 polls_router = routers.NestedDefaultRouter(users_router, 'polls', lookup='poll')
 polls_router.register('comments', CommentViewSet, basename="poll-comments")
 
-playground = [
-    path('playground/', playground.send_email)
-]
-
-
-urlpatterns = router.urls + users_router.urls + polls_router.urls + playground
+urlpatterns = router.urls + users_router.urls + polls_router.urls
