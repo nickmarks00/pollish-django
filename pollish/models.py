@@ -43,7 +43,7 @@ class Poll(models.Model):
 
     community = models.ForeignKey(Community, related_name='polls', blank=True, null=True, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
-    question_text = models.TextField(blank=False, default="")
+    question_text = models.TextField(blank=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='polls', on_delete=models.CASCADE)
     updated_at = models.DateTimeField(auto_now=True)
     uuid = models.UUIDField(default=uuid4)
@@ -54,7 +54,7 @@ class Poll(models.Model):
 
 
 class Choice(models.Model):
-    choice_text = models.CharField(max_length=255, blank=False, default="")
+    choice_text = models.CharField(max_length=255, blank=False)
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='choices')
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='choices', blank=True)
     uuid = models.UUIDField(default=uuid4)
@@ -88,9 +88,6 @@ class PollImage(models.Model):
     poll = models.ForeignKey(Poll, related_name="images", on_delete=models.CASCADE )
     choice = models.OneToOneField(Choice, null=True, on_delete=models.PROTECT)
 
-    class Meta:
-        # unique_together = ['poll', 'choice']
-        pass
 
 
 

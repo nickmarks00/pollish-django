@@ -16,7 +16,7 @@ DATABASES = {
         'PASSWORD': config('MYSQL_ROOT'),
         'PORT': '',
     },
-    'postgresql': {
+    'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'pollish', # name of db in mysql / datagrip
         'HOST': 'localhost',

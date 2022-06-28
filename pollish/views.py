@@ -76,6 +76,8 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
             serializer = self.serializer_class(polls, many=True)
             return Response(serializer.data)
         elif request.method == "POST":
+            print(request.data)
+            print(f'user={request.user}')
             serializer = self.serializer_class(data=request.data, context={'user_id': request.user.id})
             serializer.is_valid(raise_exception=True)
             serializer.save()
