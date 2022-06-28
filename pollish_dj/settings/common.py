@@ -42,6 +42,7 @@ INTERNAL_IPS = [
     config('DEV_IP')
 ]
 
+
 ROOT_URLCONF = 'pollish_dj.urls'
 
 TEMPLATES = [
@@ -118,23 +119,29 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
 # tells Django that auth requests will be prefixed in the header by JWT
    'AUTH_HEADER_TYPES': ('JWT',),
-   'ACCESS_TOKEN_LIFETIME': timedelta(hours=1)
+   'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60)
 }
 
 DJOSER = {
     'SERIALIZERS': {
         'user_create': 'core.serializers.UserCreateSerializer',
         'current_user': 'core.serializers.UserSerializer',
-    }
+        'user_delete': 'djoser.serializers.UserDeleteSerializer'
+    },
+    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
+    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
+    'SEND_CONFIRMATION_EMAIL': True,
+    'SET_PASSWORD_RETYPE': True,
+    # 'USER_CREATE_PASSWORD_RETYPE': True,
+    # 'ACTIVATION_URL': '#/activate/{uid}/{token}',
 }
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')    
 MEDIA_URL = '/media/'
 
-
-
-# --- PRODUCTION --- #
 
 # Logging
 LOGGING = {
