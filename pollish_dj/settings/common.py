@@ -128,12 +128,14 @@ DJOSER = {
         'current_user': 'core.serializers.UserSerializer',
         'user_delete': 'djoser.serializers.UserDeleteSerializer'
     },
-    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
-    'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
-    'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
-    'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
-    'SEND_CONFIRMATION_EMAIL': True,
-    'SET_PASSWORD_RETYPE': True,
+    # 'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
+    # 'USERNAME_RESET_CONFIRM_URL': 'username/reset/confirm/{uid}/{token}',
+    # 'PASSWORD_CHANGED_EMAIL_CONFIRMATION': True,
+    # 'USERNAME_CHANGED_EMAIL_CONFIRMATION': True,
+    # 'SEND_CONFIRMATION_EMAIL': True,
+    # 'SET_PASSWORD_RETYPE': True,
+
+    # Implement later...
     # 'USER_CREATE_PASSWORD_RETYPE': True,
     # 'ACTIVATION_URL': '#/activate/{uid}/{token}',
 }

@@ -33,10 +33,10 @@ DATABASES['default'] = DATABASES[default_database]
 
 
 # SMTP and Emails
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_USER = ''
-EMAIL_PASSWORD = ''
-EMAIL_PORT = 2525
-DEFAULT_FROM_MAIL = 'pollish.org@gmail.com'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'localhost'
+# EMAIL_USER = ''
+# EMAIL_PASSWORD = ''
+# EMAIL_PORT = 2525
+# DEFAULT_FROM_MAIL = 'pollish.org@gmail.com'
 
