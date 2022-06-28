@@ -1,6 +1,5 @@
-from django.db import connection
-from django.urls import resolve
 from django_filters.rest_framework import DjangoFilterBackend
+from django.urls import resolve
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -14,6 +13,7 @@ from core.serializers import SimpleUserSerializer, UserSerializer
 from core.models import User
 
 
+
 class UserSearchFilter(SearchFilter):
     def get_search_fields(self, view, request):
         if request.query_params.get('username'):
@@ -25,9 +25,8 @@ class UserSearchFilter(SearchFilter):
 class UserViewSet(ModelViewSet):
     filter_backends = [DjangoFilterBackend, UserSearchFilter]
     filterset_fields = ['username', 'email']
-    pagination_class = PageNumberPagination
     # permission_classes = [IsAuthenticated]
-    queryset = User.objects.prefetch_related('following').all()
+    queryset = User.objects.select_related('profile').prefetch_related('following').all()
     search_fields = ['^username', '^email']
 
 

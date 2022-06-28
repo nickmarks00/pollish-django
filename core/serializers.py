@@ -20,7 +20,6 @@ class SimpleUserSerializer(serializers.ModelSerializer):
 
 class UserSerializer(BaseUserSerializer):
 
-    #TODO Make 'id' field not appear in PUT/PATCH form
     following = SimpleUserSerializer(many=True, read_only=True)
     profile = SimpleProfileSerializer(read_only=True)
 

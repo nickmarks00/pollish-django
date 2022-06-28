@@ -5,6 +5,8 @@ from os import environ
 
 DEBUG = True
 
+ALLOWED_HOSTS = [config('DEV_IP'), '127.0.0.1']
+
 SECRET_KEY = config('SECRET_KEY')
 
 DATABASES = {
@@ -28,3 +30,13 @@ DATABASES = {
 
 default_database = environ.get('DJANGO_DATABASE', 'mysql')
 DATABASES['default'] = DATABASES[default_database]
+
+
+# SMTP and Emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_USER = ''
+EMAIL_PASSWORD = ''
+EMAIL_PORT = 2525
+DEFAULT_FROM_MAIL = 'pollish.org@gmail.com'
+
