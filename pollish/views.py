@@ -114,41 +114,36 @@ class RegisterVote(GenericViewSet, ListModelMixin, UpdateModelMixin, RetrieveMod
 
     @action(detail=True, methods=['PATCH'])
     def me(self, request, format=None, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        valid_choice_qset = Choice.objects.filter(id=self.kwargs['pk'])
+        if not valid_choice_qset.exists():
+            return Response({'msg': 'choice not found'}, status.HTTP_404_NOT_FOUND)
+        user_voted_qset = valid_choice_qset.filter(users__id=request.user.id)
+        if len(user_voted_qset):
+            # user is de-registering vote
+            with transaction.atomic():
+                choice = user_voted_qset[0]
+                choice.users.remove(request.user.id)
 
-        if serializer.is_valid():
-            valid_choice_qset = Choice.objects.filter(id=self.kwargs['pk'])
-            if not valid_choice_qset.exists():
-                return Response({'msg': 'choice not found'}, status.HTTP_404_NOT_FOUND)
-            user_voted_qset = valid_choice_qset.filter(users__id=request.user.id)
-            if len(user_voted_qset):
-                # user is de-registering vote
-                with transaction.atomic():
-                    choice = user_voted_qset[0]
-                    choice.users.remove(request.user.id)
+                profile_qs = Profile.objects.filter(user_id=request.user.id)
+                profile = profile_qs[0]
 
-                    profile_qs = Profile.objects.filter(user_id=request.user.id)
-                    profile = profile_qs[0]
+                profile.votes_registered -= 1
+                profile.save()
 
-                    profile.votes_registered -= 1
-                    profile.save()
+        else:
+            # makes sure that fields only update if all other updates are successful
+            with transaction.atomic():
+                choice = valid_choice_qset[0]
+                choice.users.add(request.user.id)
 
-            else:
-                # makes sure that fields only update if all other updates are successful
-                with transaction.atomic():
-                    choice = valid_choice_qset[0]
-                    choice.users.add(request.user.id)
+                profile_qs = Profile.objects.filter(user_id=request.user.id)
+                profile = profile_qs[0]
 
-                    profile_qs = Profile.objects.filter(user_id=request.user.id)
-                    profile = profile_qs[0]
+                profile.votes_registered += 1
+                profile.save()
 
-                    profile.votes_registered += 1
-                    profile.save()
-
-            return Response(ChoiceSerializer(choice).data, status=status.HTTP_202_ACCEPTED)
-        
-
-        return Response({'msg': 'bad serializer'}, status.HTTP_400_BAD_REQUEST)
+        return Response(ChoiceSerializer(choice).data, status=status.HTTP_202_ACCEPTED)
+    
 
 
 class ProfileViewSet(ModelViewSet):
