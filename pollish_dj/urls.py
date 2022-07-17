@@ -16,5 +16,8 @@ urlpatterns = [
 ]
 
 # Add this media root only in production
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+
+# TODO - remove comment on line 19 once AWS S3 configured for production media
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

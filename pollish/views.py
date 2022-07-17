@@ -12,8 +12,10 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from .models import Poll, Choice, Comment, PollImage, Profile, Community
 from core.models import User
-from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer, CommunitySerializer, SimpleCommunitySerializer
+from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer
 
+from .list_serializers import ListCommunitySerializer
+from .base_serializers import BaseCommunitySerializer
 
 
 class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
@@ -69,21 +71,20 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
 
 
     # Function for returning authenticated users polls
-    @action(detail=False, methods=['GET', 'POST'])
+    @action(detail=True, methods=['GET', 'POST'])
     def me(self, request):
         polls = Poll.objects.select_related('user').filter(user_id=request.user.id)
         if request.method == "GET" and polls.exists():
             serializer = self.serializer_class(polls, many=True)
             return Response(serializer.data)
         elif request.method == "POST":
-            print(request.data)
-            print(f'user={request.user}')
             serializer = self.serializer_class(data=request.data, context={'user_id': request.user.id})
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response([])
 
+    
 
 
 class CommentViewSet(ModelViewSet):
@@ -173,16 +174,17 @@ class CommunityViewSet(ModelViewSet):
 
     filter_backends = [SearchFilter]
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticated]
-    queryset = Community.objects.select_related('created_by').prefetch_related('polls__choices__users', 'polls__comments', 'polls__user', 'users').all()
+    queryset = Community.objects.select_related('all').all()
     search_fields = ['name']
-    serializer_class = CommunitySerializer
+    serializer_class = ListCommunitySerializer
 
     def get_serializer_class(self):
         user_id = self.kwargs.get('user_pk', None)
         if user_id is not None:
-            return SimpleCommunitySerializer
-        return CommunitySerializer
+            return BaseCommunitySerializer
+        return ListCommunitySerializer
 
     def get_serializer_context(self):
         return {'user_id': self.request.user.id,
@@ -202,8 +204,7 @@ class CommunityViewSet(ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         poll_id = request.query_params.get('poll_id')
-        update_user = request.query_params.get('update_user', 'False')
-        user_id = request.user.id
+        user_id = request.query_params.get('user_id')
 
         queryset = Community.objects.filter(id=self.kwargs['pk'])
 
@@ -226,7 +227,7 @@ class CommunityViewSet(ModelViewSet):
                 community.polls.add(poll)
             else:
                 return Response('Poll not found with that id', status=status.HTTP_400_BAD_REQUEST)
-        elif user_id is not None and update_user == 'True':
+        elif user_id is not None:
             user_queryset = User.objects.filter(id=user_id)
             community_queryset = community.users.filter(id=user_id)
             if len(community_queryset):
@@ -246,4 +247,4 @@ class CommunityViewSet(ModelViewSet):
             return Response('Error in body', status=status.HTTP_400_BAD_REQUEST)
 
 
-        return Response(CommunitySerializer(community, context={'user_id': user_id}).data, status=status.HTTP_202_ACCEPTED)
+        return Response(ListCommunitySerializer(community, context={'user_id': user_id}).data, status=status.HTTP_202_ACCEPTED)

@@ -1,7 +1,11 @@
 from rest_framework import serializers
 
 from core.serializers import SimpleUserSerializer
-from .models import Community, Poll, Choice, Comment, PollImage, Profile
+from .models import Poll, Choice, Comment, PollImage, Profile
+
+
+from .base_serializers import BaseCommunitySerializer
+from .list_serializers import ListChoiceSerializer
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
@@ -18,7 +22,7 @@ class ChoiceSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         users = validated_data.pop('users')
-        choice = Choice.objects.create(**validated_data) # I think this should update an existing poll if found, not sure tho...
+        choice = Choice.objects.create(**validated_data)
         
         return choice
 
@@ -34,7 +38,6 @@ class CommentSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         poll_id = self.context['poll_id']
-        print(poll_id)
         return Comment.objects.create(poll_id=poll_id, **validated_data)
 
 
@@ -49,38 +52,8 @@ class PollImageSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         poll_id = self.context['poll_id']
-        print(poll_id)
         return PollImage.objects.create(poll_id=poll_id, **validated_data)
 
-
-class SimplePollSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Poll
-        fields = ['id', 'user', 'created_at', 'question_text', 'num_comments', 'num_votes']
-
-    num_comments = serializers.SerializerMethodField(method_name='count_comments')
-    num_votes = serializers.SerializerMethodField(method_name='count_votes')
-    user = SimpleUserSerializer(read_only=True)
-    
-    # Serializer class methods
-    def count_comments(self, poll:Poll):
-        try:
-            return poll.comments.count()
-        except AttributeError:
-            return 0
-
-    def count_votes(self, poll:Poll):
-        return sum([choice.users.count() for choice in poll.choices.all()])
-
-
-class SimpleCommunitySerializer(serializers.ModelSerializer):
-
-    id = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Community
-        fields = ['name', 'id']
 
 class PollSerializer(serializers.ModelSerializer):
 
@@ -90,12 +63,12 @@ class PollSerializer(serializers.ModelSerializer):
         fields = ('community', 'id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments', 'user_vote')
     
     # Defined fields
+    choices = ListChoiceSerializer(many=True)
+    community = BaseCommunitySerializer(required=False)
     images = PollImageSerializer(many=True, required=False)
-    choices = ChoiceSerializer(many=True)
-    user_id = serializers.IntegerField(read_only=True)
     num_comments = serializers.SerializerMethodField(method_name='count_comments')
+    user_id = serializers.IntegerField(read_only=True)
     user_vote = serializers.SerializerMethodField(method_name='get_user_vote')
-    community = SimpleCommunitySerializer(required=False)
 
     # Serializer class methods
     def count_comments(self, poll:Poll):
@@ -132,19 +105,6 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 
-class CommunitySerializer(serializers.ModelSerializer):
 
-    polls = SimplePollSerializer(many=True, read_only=True)
-    users = SimpleUserSerializer(many=True, read_only=True)
-    created_by = SimpleUserSerializer(read_only=True)
-
-    class Meta:
-        model = Community
-        fields = ['name', 'image', 'polls', 'users', 'created_by', 'created_at']
-
-    def create(self, validated_data):
-        community = Community.objects.create(created_by_id=self.context['user_id'], **validated_data)
-
-        return community
 
 
