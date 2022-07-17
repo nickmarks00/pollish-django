@@ -2,7 +2,7 @@ from djoser.serializers import UserSerializer as BaseUserSerializer, UserCreateS
 from rest_framework import serializers
 
 from .models import User
-from pollish.base_serializers import SimpleProfileSerializer
+from pollish.detail_serializers import DetailProfileSerializer
 
 
 class UserCreateSerializer(BaseUserCreateSerializer):
@@ -13,15 +13,16 @@ class UserCreateSerializer(BaseUserCreateSerializer):
 
 class SimpleUserSerializer(serializers.ModelSerializer):
 
-    profile = SimpleProfileSerializer(read_only=True)
+    profile = DetailProfileSerializer(read_only=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'profile']
+        fields = ['id', 'username', 'profile']
+
 
 class UserSerializer(BaseUserSerializer):
 
     following = SimpleUserSerializer(many=True, read_only=True)
-    profile = SimpleProfileSerializer(read_only=True)
+    profile = DetailProfileSerializer(read_only=True)
 
     class Meta(BaseUserSerializer.Meta):
         fields = ['id', 'username',  'email', 'first_name', 'last_name', 'following', 'profile']
