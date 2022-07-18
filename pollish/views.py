@@ -11,12 +11,12 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 
 from .models import Poll, Choice, Comment, PollImage, Profile, Community
+
+
+from .serializers.detail_serializers import DetailCommunitySerializer, DetailCommentSerializer, DetailPollImageSerializer, DetailPollSerializer, DetailProfileSerializer
+from .serializers.list_serializers import ListCommunitySerializer, ListChoiceSerializer
+
 from core.models import User
-from .serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer
-
-from .list_serializers import ListCommunitySerializer
-from .base_serializers import BaseCommunitySerializer
-
 
 class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
     '''
@@ -27,7 +27,7 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
 
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
-    serializer_class = PollImageSerializer
+    serializer_class = DetailPollImageSerializer
 
     def get_queryset(self):
         return PollImage.objects.filter(poll_id=self.kwargs['poll_pk'])
@@ -36,13 +36,18 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
         return {'poll_id': self.kwargs['poll_pk']}
     
 
-    def post(self, request, format=None):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def create(self, request, *args, **kwargs):
+        poll_id = self.kwargs['poll_pk']
+
+        # check that choice ID matches option on Poll
+        choice_id = request.data.get('choice_id', None)
+        if choice_id:
+            choice_queryset = Poll.objects.filter(id=poll_id, choices__in=[choice_id])
+            print(choice_queryset)
+            if not choice_queryset.exists():
+                return Response({"message": "No such choice on poll"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return super().create(request)
 
 
 class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveModelMixin):
@@ -51,7 +56,7 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
     pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticated]
     search_fields = ['question_text']
-    serializer_class = PollSerializer
+    serializer_class = DetailPollSerializer
 
 
     def get_queryset(self):
@@ -71,25 +76,90 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
 
 
     # Function for returning authenticated users polls
-    @action(detail=True, methods=['GET', 'POST'])
+    @action(detail=False, methods=['GET', 'POST'])
     def me(self, request):
         polls = Poll.objects.select_related('user').filter(user_id=request.user.id)
         if request.method == "GET" and polls.exists():
             serializer = self.serializer_class(polls, many=True)
             return Response(serializer.data)
         elif request.method == "POST":
+
             serializer = self.serializer_class(data=request.data, context={'user_id': request.user.id})
             serializer.is_valid(raise_exception=True)
+
+            # check that at least two choices provided
+            if len(request.data.get("choices", [])) < 2:
+                return Response({"message": "At least two choices are required"}, status=status.HTTP_400_BAD_REQUEST)
+
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response([])
+
+
+    @action(detail=True, methods=['PATCH'])
+    def vote(self, request, *args, **kwargs):
+        
+        response = []
+
+        vote_id = request.data.get('vote_id', None)
+        unvote_id = request.data.get('unvote_id', None)
+        user_id = request.query_params.get('user_id')
+        poll_id = self.kwargs.get('pk')
+
+
+        if not user_id:
+            return Response({"user_id": ["This parameter is required"]}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not (vote_id or unvote_id):
+            return Response({"body": ["Both choice to vote and choice to unvote missing"]}, status=status.HTTP_400_BAD_REQUEST)
+
+        
+        # handle vote
+        if vote_id:
+            choice_to_vote = Choice.objects.filter(id=vote_id, poll__id=poll_id)
+            if not choice_to_vote.exists():
+                return Response({"vote_id": ["This choice doesn't exist on this poll"]}, status=status.HTTP_400_BAD_REQUEST)
+
+            with transaction.atomic():
+                choice_vote = choice_to_vote[0]
+                choice_vote.users.add(user_id)
+
+                profile_qs = Profile.objects.filter(user_id=user_id)
+                profile = profile_qs[0]
+
+                profile.votes_registered += 1
+                profile.save()
+
+            response.append(ListChoiceSerializer(choice_vote).data)
+        
+
+        # handle unvote
+        if unvote_id:
+            choice_to_unvote = Choice.objects.filter(id=unvote_id, poll__id=poll_id)
+            if not choice_to_unvote.exists():
+                return Response({"unvote_id": ["This choice doesn't exist on this poll"]}, status=status.HTTP_400_BAD_REQUEST)
+
+            with transaction.atomic():
+                choice_unvote = choice_to_unvote[0]
+                choice_unvote.users.remove(user_id)
+
+                profile_qs = Profile.objects.filter(user_id=user_id)
+                profile = profile_qs[0]
+
+                profile.votes_registered -= 1
+                profile.save()
+
+            response.append(ListChoiceSerializer(choice_unvote).data)
+            
+
+        return Response(response, status=status.HTTP_202_ACCEPTED)
 
     
 
-
 class CommentViewSet(ModelViewSet):
 
-    serializer_class = CommentSerializer
+    serializer_class = DetailCommentSerializer
     permission_classes = [IsAuthenticated]
 
 
@@ -98,52 +168,22 @@ class CommentViewSet(ModelViewSet):
     
     def get_serializer_context(self):
         return {'poll_id': self.kwargs['poll_pk']}
-    
-
-class RegisterVote(GenericViewSet, ListModelMixin, UpdateModelMixin, RetrieveModelMixin):
-
-    serializer_class = ChoiceSerializer
-    permission_classes = [IsAuthenticated]
 
 
-    def get_queryset(self):
-        return Choice.objects.prefetch_related('users').filter(poll_id=self.kwargs['poll_pk'])
-    
-    def get_serializer_context(self):
-        return {'poll_id': self.kwargs['poll_pk']}
+    def create(self, request, *args, **kwargs):
+        poll_id = self.kwargs['poll_pk']
+        choice_id = request.data.get('choice_id', None)
+        user_id = request.data.get('user_id', None)
+        
+        queryset = Poll.objects.filter(id=poll_id, choices__in=[choice_id])
 
+        if not queryset.exists():
+            return Response({"message": "No such choice on poll"}, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=['PATCH'])
-    def me(self, request, format=None, *args, **kwargs):
-        valid_choice_qset = Choice.objects.filter(id=self.kwargs['pk'])
-        if not valid_choice_qset.exists():
-            return Response({'msg': 'choice not found'}, status.HTTP_404_NOT_FOUND)
-        user_voted_qset = valid_choice_qset.filter(users__id=request.user.id)
-        if len(user_voted_qset):
-            # user is de-registering vote
-            with transaction.atomic():
-                choice = user_voted_qset[0]
-                choice.users.remove(request.user.id)
+        if user_id != request.user.id:
+            return Response({"message": "Mismatching user in body to authorization header"}, status=status.HTTP_401_UNAUTHORIZED)
 
-                profile_qs = Profile.objects.filter(user_id=request.user.id)
-                profile = profile_qs[0]
-
-                profile.votes_registered -= 1
-                profile.save()
-
-        else:
-            # makes sure that fields only update if all other updates are successful
-            with transaction.atomic():
-                choice = valid_choice_qset[0]
-                choice.users.add(request.user.id)
-
-                profile_qs = Profile.objects.filter(user_id=request.user.id)
-                profile = profile_qs[0]
-
-                profile.votes_registered += 1
-                profile.save()
-
-        return Response(ChoiceSerializer(choice).data, status=status.HTTP_202_ACCEPTED)
+        return super().create(request)
     
 
 
@@ -151,7 +191,7 @@ class ProfileViewSet(ModelViewSet):
 
     parser_classes = [MultiPartParser, FormParser]
     permission_classes = [IsAuthenticated]
-    serializer_class = ProfileSerializer
+    serializer_class = DetailProfileSerializer
 
     def get_queryset(self):
         return Profile.objects.select_related('user').all()
@@ -161,10 +201,10 @@ class ProfileViewSet(ModelViewSet):
     def me(self, request):
         (profile, created) = Profile.objects.get_or_create(user_id=request.user.id)
         if request.method == "GET":
-            serializer = ProfileSerializer(profile)
+            serializer = DetailProfileSerializer(profile)
             return Response(serializer.data)
         elif request.method == "PATCH":
-            serializer = ProfileSerializer(profile, data=request.data)
+            serializer = DetailProfileSerializer(profile, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
@@ -178,13 +218,19 @@ class CommunityViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Community.objects.select_related('all').all()
     search_fields = ['name']
-    serializer_class = ListCommunitySerializer
+    
+    serializer_classes = {
+        'list': ListCommunitySerializer,
+        'retrieve': DetailCommunitySerializer
+    }
+
+    default_serializer_class = ListCommunitySerializer
 
     def get_serializer_class(self):
         user_id = self.kwargs.get('user_pk', None)
         if user_id is not None:
-            return BaseCommunitySerializer
-        return ListCommunitySerializer
+            return ListCommunitySerializer
+        return self.serializer_classes.get(self.action, self.default_serializer_class)
 
     def get_serializer_context(self):
         return {'user_id': self.request.user.id,
