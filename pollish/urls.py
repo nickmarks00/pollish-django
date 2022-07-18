@@ -19,7 +19,7 @@ polls_router.register('comments', views.CommentViewSet, basename="comments")
 polls_router.register('images', views.PollImageUpload, basename='images' )
 
 # polls/<id>/choices
-polls_router.register('choices', views.RegisterVote, basename='choices' )
+# polls_router.register('choices', views.RegisterVote, basename='choices' )
 
 communities_router = routers.NestedDefaultRouter(router, 'communities', lookup='community')
 

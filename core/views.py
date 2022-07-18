@@ -9,11 +9,12 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 
-from core.serializers import SimpleUserSerializer, UserSerializer
-from core.models import User
+from .base_serializers import BaseUserSerializer 
+from .serializers import UserSerializer
+from .models import User
 
 from pollish.models import Poll, Community
-from pollish.serializers import PollSerializer
+from pollish.serializers.detail_serializers import DetailPollSerializer
 
 
 
@@ -36,7 +37,7 @@ class UserViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if resolve(self.request.path_info).url_name == 'users-followers' or 'users-following':
-            return SimpleUserSerializer
+            return BaseUserSerializer
         return UserSerializer
 
 
@@ -96,8 +97,10 @@ class UserViewSet(ModelViewSet):
             polls = Poll.objects.select_related('user').filter(user_id__in=following_users)
             
             if polls.exists():
-                serializer_following = PollSerializer(polls, many=True)
+                serializer_following = DetailPollSerializer(polls, many=True)
                 response.append(serializer_following.data)
+        else:
+            return Response({"message": "No such user found in database"}, status=status.HTTP_404_NOT_FOUND)
 
 
         # fetch polls belonging to communities I follow
@@ -105,7 +108,7 @@ class UserViewSet(ModelViewSet):
         if queryset.exists():
             polls = Poll.objects.select_related('user').filter(community_id__in=communities)
             if polls.exists():
-                serializer_communities = PollSerializer(polls, many=True)
+                serializer_communities = DetailPollSerializer(polls, many=True)
                 response.append(serializer_communities.data)
 
         return Response(response)
@@ -114,7 +117,7 @@ class UserViewSet(ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         user_to_follow_id = request.query_params.get('user_id')
-        unfollow = request.query_params.get('unfollow', 'False')
+        unfollow = bool(request.query_params.get('unfollow', False))
 
         if user_to_follow_id is not None:
             current_user_id = request.user.id
@@ -122,17 +125,17 @@ class UserViewSet(ModelViewSet):
             current_user_queryset = User.objects.filter(id=current_user_id)
 
             if not user_to_follow_queryset.exists() or not current_user_queryset.exists() :
-                return Response('User not found', status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
 
             user_to_follow = user_to_follow_queryset[0]
             current_user = current_user_queryset[0]
 
-            if unfollow == 'True':
+            if unfollow:
                 current_user.following.remove(user_to_follow)
             else:
                 current_user.following.add(user_to_follow)
 
-            return Response(UserSerializer(current_user).data, status=status.HTTP_202_ACCEPTED)
+            return Response(BaseUserSerializer(user_to_follow).data, status=status.HTTP_202_ACCEPTED)
 
         else:
             super().update(request)

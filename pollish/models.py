@@ -29,7 +29,7 @@ class Community(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
-    image = models.ImageField(upload_to=community_directory_path)
+    image = models.ImageField(upload_to=community_directory_path, blank=True, null=True)
     name = models.CharField(max_length=255)
     users = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='communities', blank=True)
     uuid = models.UUIDField(default=uuid4)

@@ -14,8 +14,8 @@ from pollish.models import Poll, Choice, Comment, PollImage, Profile, Community
 from core.models import User
 from pollish.serializers import ChoiceSerializer, CommentSerializer, PollImageSerializer, PollSerializer, ProfileSerializer
 
-from pollish.list_serializers import ListCommunitySerializer
-from pollish.base_serializers import BaseCommunitySerializer
+from pollish.serializers.list_serializers import ListCommunitySerializer
+from pollish.serializers.base_serializers import BaseCommunitySerializer
 
 
 
