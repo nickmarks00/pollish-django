@@ -26,7 +26,7 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
     # handling the multi-format of images...
 
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     serializer_class = DetailPollImageSerializer
 
     def get_queryset(self):

@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_filters',
     'djoser',
+    'storages',
 
     # custom
     'core.apps.CoreConfig', 
