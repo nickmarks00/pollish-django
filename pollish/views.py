@@ -243,7 +243,8 @@ class CommunityViewSet(ModelViewSet):
         return Community.objects.all()
 
     def create(self, request):
-        serializer = self.serializer_class(data=request.data, context={'user_id': self.request.user.id})
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(data=request.data, context={'user_id': self.request.user.id})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -255,7 +256,7 @@ class CommunityViewSet(ModelViewSet):
         queryset = Community.objects.filter(id=self.kwargs['pk'])
 
         if not queryset.exists():
-                return Response({'msg': 'community not found'}, status.HTTP_404_NOT_FOUND)
+                return Response({'message': 'community not found'}, status.HTTP_404_NOT_FOUND)
 
         community = queryset[0]
 
