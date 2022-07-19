@@ -25,12 +25,11 @@ class ListChoiceSerializer(serializers.ModelSerializer):
 class ListCommunitySerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(read_only=True)
-    created_by = BaseUserSerializer(read_only=True)
     num_polls = serializers.SerializerMethodField(method_name='count_polls')
     num_users = serializers.SerializerMethodField(method_name='count_users')
     class Meta:
         model = Community
-        fields = ['id', 'created_by', 'created_at', 'image','name', 'num_polls', 'num_users']
+        fields = ['id', 'created_by_id', 'created_at', 'image','name', 'num_polls', 'num_users']
 
     def count_users(self, community:Community):
         return community.users.count()
