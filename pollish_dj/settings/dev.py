@@ -5,7 +5,7 @@ import os
 
 DEBUG = True
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,').split(',')
 
 SECRET_KEY = config('SECRET_KEY')
 
@@ -15,7 +15,7 @@ DATABASES = {
         'NAME': 'pollish', # name of db in mysql / datagrip
         'HOST': 'localhost',
         'USER': 'root',
-        'PASSWORD': config('MYSQL_ROOT'),
+        'PASSWORD': config('MYSQL_ROOT', default='localhost'),
         'PORT': '',
     },
     'postgres': {
@@ -23,7 +23,7 @@ DATABASES = {
         'NAME': 'pollish', # name of db in mysql / datagrip
         'HOST': 'localhost',
         'USER': 'nickm',
-        'PASSWORD': config('POSTGRES_ROOT'),
+        'PASSWORD': config('POSTGRES_ROOT', default='localhost'),
         'PORT': '',
     }
 }

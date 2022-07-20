@@ -38,7 +38,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
-INTERNAL_IPS = config('ALLOWED_HOSTS').split(',')
+INTERNAL_IPS = config('ALLOWED_HOSTS', default='127.0.0.1,').split(',')
 
 
 ROOT_URLCONF = 'pollish_dj.urls'
@@ -181,3 +181,6 @@ AWS_DEFAULT_ACL = None
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage' # Auto upload static files to bucket
+
+AWS_S3_HOST = 's3.ap-southeast-2.amazonaws.com'
+AWS_S3_REGION_NAME="ap-southeast-2"
