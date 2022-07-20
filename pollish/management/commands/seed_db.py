@@ -31,6 +31,6 @@ class Command(BaseCommand):
             except Exception as e:
                 print(e)
         else:
-            with cursor.connection() as cursor:
+            with connection.cursor() as cursor:
                 cursor.execute(sql)
             print("Successfully populated remote database...")
