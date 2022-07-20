@@ -38,7 +38,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
-INTERNAL_IPS = config('ALLOWED_HOSTS').split(',')
+INTERNAL_IPS = config('ALLOWED_HOSTS', default='127.0.0.1,').split(',')
 
 
 ROOT_URLCONF = 'pollish_dj.urls'
