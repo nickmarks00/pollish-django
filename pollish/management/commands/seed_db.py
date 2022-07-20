@@ -33,4 +33,4 @@ class Command(BaseCommand):
         else:
             with cursor.connection() as cursor:
                 cursor.execute(sql)
-             print("Successfully populated remote database...")
+            print("Successfully populated remote database...")
