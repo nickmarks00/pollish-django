@@ -5,9 +5,9 @@ from .common import *
 
 DEBUG = False
 
-SECRET_KEY = os.environ['SECRET_KEY']
+SECRET_KEY = config('SECRET_KEY')
 
-ALLOWED_HOSTS = ['pollish-prod.herokuapp.com']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 DATABASES = {
     'default': dj_database_url.config()
