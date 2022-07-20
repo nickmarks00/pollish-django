@@ -1,11 +1,11 @@
 from .common import *
 from decouple import config
-from os import environ
+import os
 
 
 DEBUG = True
 
-ALLOWED_HOSTS = [config('DEV_IP'), '127.0.0.1']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 SECRET_KEY = config('SECRET_KEY')
 
@@ -28,7 +28,7 @@ DATABASES = {
     }
 }
 
-default_database = environ.get('DJANGO_DATABASE', 'mysql')
+default_database = os.environ.get('DJANGO_DATABASE', 'mysql')
 DATABASES['default'] = DATABASES[default_database]
 
 

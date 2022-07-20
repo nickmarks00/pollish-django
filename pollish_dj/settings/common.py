@@ -38,10 +38,7 @@ MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware'
 ]
 
-INTERNAL_IPS = [
-    '127.0.0.1',
-    config('DEV_IP')
-]
+INTERNAL_IPS = config('ALLOWED_HOSTS').split(',')
 
 
 ROOT_URLCONF = 'pollish_dj.urls'
@@ -98,9 +95,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [
-   os.path.join(BASE_DIR, 'pollish_dj/static/')
-]
+
 WHITENOISE_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -149,7 +144,7 @@ MEDIA_URL = '/media/'
 # Logging
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': False, #doesn't override pre-existing Django loggers
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler'
@@ -163,13 +158,26 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['console', 'file'],
-            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO') #log level DEBUG-INFO-WARNING-CRIT-ERROR
         }
     },
     'formatters': {
         'verbose': {
             'format': '{asctime} ({levelname} - {name} - {message})',
-            'style': '{'
+            'style': '{' #defaults to str.format
         }
     }
 }
+
+
+# Amazon S3 Buckets Config
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = 'pollishorg-media-bucket'
+
+# from django-storages
+AWS_S3_FILE_OVERWRITE = False # defaults to True
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3StaticStorage' # Auto upload static files to bucket
