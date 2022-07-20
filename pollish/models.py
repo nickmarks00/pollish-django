@@ -82,7 +82,7 @@ class PollImage(models.Model):
     def poll_directory_path(self, filename):
         if self.choice:
             return f'users/user_{self.poll.user.id}/poll_{self.poll.id}/choice_{self.choice.id}/{filename}'
-        return f'user_{self.poll.user.id}/poll_{self.poll.id}/{filename}'
+        return f'users/user_{self.poll.user.id}/poll_{self.poll.id}/{filename}'
 
     image = models.ImageField(upload_to=poll_directory_path)
     poll = models.ForeignKey(Poll, related_name="images", on_delete=models.CASCADE )
