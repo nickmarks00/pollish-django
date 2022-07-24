@@ -15,7 +15,7 @@ class DetailCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('choice_id', 'comment_text', 'user_id', 'created_at')
+        fields = ('id', 'choice_id', 'comment_text', 'user_id', 'created_at')
     
     def create(self, validated_data):
         poll_id = self.context['poll_id']
@@ -30,7 +30,7 @@ class DetailPollImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PollImage
-        fields = ['image', 'choice_id', 'poll_id']
+        fields = ['id', 'image', 'choice_id', 'poll_id']
     
     def create(self, validated_data):
         poll_id = self.context['poll_id']
@@ -42,7 +42,7 @@ class DetailPollSerializer(serializers.ModelSerializer):
     # Meta class
     class Meta:
         model = Poll
-        fields = ('community', 'id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments', 'user_vote')
+        fields = ('id', 'community', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments', 'user_vote')
     
     # Defined fields
     choices = ListChoiceSerializer(many=True)
@@ -81,7 +81,6 @@ class DetailPollSerializer(serializers.ModelSerializer):
 
 class DetailCommunitySerializer(serializers.ModelSerializer):
 
-    id = serializers.IntegerField(read_only=True)
     created_by = BaseUserSerializer(read_only=True)
     polls = ListPollSerializer(many=True)
     num_users = serializers.SerializerMethodField(method_name='count_users')

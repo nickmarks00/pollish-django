@@ -64,7 +64,7 @@ class Choice(models.Model):
 
 
 class Comment(models.Model):
-    choice = models.ForeignKey(Choice, on_delete=models.PROTECT, blank=True, null=True)
+    choice = models.ForeignKey(Choice, on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     comment_text = models.TextField()
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE, related_name='comments')
@@ -86,7 +86,7 @@ class PollImage(models.Model):
 
     image = models.ImageField(upload_to=poll_directory_path)
     poll = models.ForeignKey(Poll, related_name="images", on_delete=models.CASCADE )
-    choice = models.OneToOneField(Choice, null=True, on_delete=models.PROTECT)
+    choice = models.OneToOneField(Choice, null=True, on_delete=models.CASCADE)
 
 
 

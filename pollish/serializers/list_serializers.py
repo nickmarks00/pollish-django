@@ -1,8 +1,6 @@
 from rest_framework import serializers
 
-from core.base_serializers import BaseUserSerializer
-from pollish.serializers.base_serializers import BaseCommunitySerializer
-from ..models import Community, Poll, Choice, Comment, PollImage, Profile
+from ..models import Community, Poll, Choice, PollImage, Profile
 
 
 class ListChoiceSerializer(serializers.ModelSerializer):
