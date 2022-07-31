@@ -15,7 +15,7 @@ class DetailCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('choice_id', 'comment_text', 'user_id', 'created_at')
+        fields = ('id', 'choice_id', 'comment_text', 'user_id', 'created_at')
     
     def create(self, validated_data):
         poll_id = self.context['poll_id']
@@ -42,23 +42,17 @@ class DetailPollSerializer(serializers.ModelSerializer):
     # Meta class
     class Meta:
         model = Poll
-        fields = ('community', 'id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'num_comments', 'user_vote')
+        fields = ('community', 'id', 'user_id', 'created_at', 'question_text', 'choices', 'images',  'comments', 'user_vote')
     
     # Defined fields
     choices = ListChoiceSerializer(many=True)
+    comments = DetailCommentSerializer(many=True)
     community = BaseCommunitySerializer(required=False)
     images = DetailPollImageSerializer(many=True, required=False)
-    num_comments = serializers.SerializerMethodField(method_name='count_comments')
     user_id = serializers.IntegerField(read_only=True)
     user_vote = serializers.SerializerMethodField(method_name='get_user_vote')
 
     # Serializer class methods
-    def count_comments(self, poll:Poll):
-        try:
-            return poll.comments.count()
-        except AttributeError:
-            return 0
-
     def get_user_vote(self, poll:Poll):
         user_id = self.context.get('user_id')
         if user_id:
