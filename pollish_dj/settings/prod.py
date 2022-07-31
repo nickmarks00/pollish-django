@@ -13,9 +13,7 @@ ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
 
 DATABASES = {"default": dj_database_url.config()}
 
-
 WSGI_APPLICATION = "pollish_dj.wsgi.application"
-
 
 # SMTP and Emails
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -24,7 +22,6 @@ WSGI_APPLICATION = "pollish_dj.wsgi.application"
 # # EMAIL_HOST_PASSWORD = config('HOST_EMAIL_PASSWORD')
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-
 
 # Amazon S3 Buckets Config
 AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")

@@ -38,7 +38,6 @@ MIDDLEWARE = [
 
 INTERNAL_IPS = config("ALLOWED_HOSTS", default="127.0.0.1,").split(",")
 
-
 ROOT_URLCONF = "pollish_dj.urls"
 
 TEMPLATES = [
@@ -57,29 +56,30 @@ TEMPLATES = [
     },
 ]
 
-
 # Tells Django to use custom user model
 AUTH_USER_MODEL = "core.User"
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 LANGUAGE_CODE = "en-us"
 
@@ -89,7 +89,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 STATIC_URL = "static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
@@ -97,13 +96,13 @@ WHITENOISE_ROOT = os.path.join(BASE_DIR, "static")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 REST_FRAMEWORK = {
-    "DEFAULT_PAGINATION_CLASS": None,
-    "PAGE_SIZE": 10,
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    "DEFAULT_PAGINATION_CLASS":
+    None,
+    "PAGE_SIZE":
+    10,
+    "DEFAULT_AUTHENTICATION_CLASSES":
+    ("rest_framework_simplejwt.authentication.JWTAuthentication", ),
     # 'DEFAULT_PERMISSION_CLASSES': [
     # 	'rest_framework.permissions.isAuthenticated'
     # ]
@@ -111,7 +110,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     # tells Django that auth requests will be prefixed in the header by JWT
-    "AUTH_HEADER_TYPES": ("JWT",),
+    "AUTH_HEADER_TYPES": ("JWT", ),
     "ACCESS_TOKEN_LIFETIME": timedelta(days=100),
 }
 
@@ -132,17 +131,18 @@ DJOSER = {
     # 'ACTIVATION_URL': '#/activate/{uid}/{token}',
 }
 
-
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
-
 
 # Logging
 LOGGING = {
     "version": 1,
-    "disable_existing_loggers": False,  # doesn't override pre-existing Django loggers
+    "disable_existing_loggers":
+    False,  # doesn't override pre-existing Django loggers
     "handlers": {
-        "console": {"class": "logging.StreamHandler"},
+        "console": {
+            "class": "logging.StreamHandler"
+        },
         "file": {
             "class": "logging.FileHandler",
             "filename": "general.log",
@@ -158,7 +158,8 @@ LOGGING = {
     },
     "formatters": {
         "verbose": {
-            "format": "\n{asctime} == {levelname} \nCall from: {name} {pathname} - {funcName}\nOn Line {lineno}\nMessage: {message}",
+            "format":
+            "\n{asctime} == {levelname} \nCall from: {name} {pathname} - {funcName}\nOn Line {lineno}\nMessage: {message}",
             "style": "{",  # defaults to str.format
         }
     },
