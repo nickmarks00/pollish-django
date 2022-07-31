@@ -163,7 +163,7 @@ LOGGING = {
     },
     'formatters': {
         'verbose': {
-            'format': '{asctime} ({levelname} - {name} - {message})',
+            'format': '\n{asctime} == {levelname} \nCall from: {name} {pathname} - {funcName}\nOn Line {lineno}\nMessage: {message}',
             'style': '{' #defaults to str.format
         }
     }
