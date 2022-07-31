@@ -14,7 +14,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #third-party
+    # third-party
     'rest_framework',
     'debug_toolbar',
     'django_filters',
@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     'storages',
 
     # custom
-    'core.apps.CoreConfig', 
+    'core.apps.CoreConfig',
     'pollish.apps.PollishConfig'
 ]
 
@@ -46,7 +46,7 @@ ROOT_URLCONF = 'pollish_dj.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'pollish_dj' / 'templates'],
+        'DIRS': [BASE_DIR / 'pollish_dj' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,7 +62,6 @@ TEMPLATES = [
 
 # Tells Django to use custom user model
 AUTH_USER_MODEL = 'core.User'
-
 
 
 # Password validation
@@ -108,14 +107,14 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     # 'DEFAULT_PERMISSION_CLASSES': [
-	# 	'rest_framework.permissions.isAuthenticated'
-	# ]
+    # 	'rest_framework.permissions.isAuthenticated'
+    # ]
 }
 
 SIMPLE_JWT = {
-# tells Django that auth requests will be prefixed in the header by JWT
-   'AUTH_HEADER_TYPES': ('JWT',),
-   'ACCESS_TOKEN_LIFETIME': timedelta(days=100)
+    # tells Django that auth requests will be prefixed in the header by JWT
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=100)
 }
 
 DJOSER = {
@@ -137,20 +136,20 @@ DJOSER = {
 }
 
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')    
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
 # Logging
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False, #doesn't override pre-existing Django loggers
+    'disable_existing_loggers': False,  # doesn't override pre-existing Django loggers
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler'
         },
         'file': {
-            'class': 'logging.FileHandler', 
+            'class': 'logging.FileHandler',
             'filename': 'general.log',
             'formatter': 'verbose'
         }
@@ -158,13 +157,14 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers': ['console', 'file'],
-            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO') #log level DEBUG-INFO-WARNING-CRIT-ERROR
+            # log level DEBUG-INFO-WARNING-CRIT-ERROR
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
         }
     },
     'formatters': {
         'verbose': {
             'format': '\n{asctime} == {levelname} \nCall from: {name} {pathname} - {funcName}\nOn Line {lineno}\nMessage: {message}',
-            'style': '{' #defaults to str.format
+            'style': '{'  # defaults to str.format
         }
     }
 }

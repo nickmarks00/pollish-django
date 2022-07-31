@@ -4,6 +4,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class PlaygroundView(View):
 
     def get(self, request, *args, **kwargs):
