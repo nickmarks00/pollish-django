@@ -1,6 +1,7 @@
+import logging
+
 from django.http import HttpResponse
 from django.views import View
-import logging
 
 logger = logging.getLogger(__name__)
 
