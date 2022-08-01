@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
+from rest_framework.mixins import ListModelMixin, CreateModelMixin, UpdateModelMixin, RetrieveModelMixin, DestroyModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from rest_framework.permissions import IsAuthenticated
@@ -50,7 +50,7 @@ class PollImageUpload(GenericViewSet, CreateModelMixin, ListModelMixin):
         return super().create(request)
 
 
-class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveModelMixin):
+class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveModelMixin, DestroyModelMixin):
     
     filter_backends = [SearchFilter]
     pagination_class = PageNumberPagination
@@ -89,11 +89,12 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
     def me(self, request):
         polls = Poll.objects.select_related('user').filter(user_id=request.user.id)
         if request.method == "GET" and polls.exists():
-            serializer = self.serializer_class(polls, many=True)
+            serializer_class = self.get_serializer_class()
+            serializer = serializer_class(polls, many=True)
             return Response(serializer.data)
         elif request.method == "POST":
-
-            serializer = self.serializer_class(data=request.data, context={'user_id': request.user.id})
+            serializer_class = self.get_serializer_class()
+            serializer = serializer_class(data=request.data, context={'user_id': request.user.id})
             serializer.is_valid(raise_exception=True)
 
             # check that at least two choices provided
