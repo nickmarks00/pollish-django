@@ -14,7 +14,7 @@ from .models import Poll, Choice, Comment, PollImage, Profile, Community
 
 
 from .serializers.detail_serializers import DetailCommunitySerializer, DetailCommentSerializer, DetailPollImageSerializer, DetailPollSerializer, DetailProfileSerializer
-from .serializers.list_serializers import ListCommunitySerializer, ListChoiceSerializer
+from .serializers.list_serializers import ListCommunitySerializer, ListChoiceSerializer, ListPollSerializer
 
 from core.models import User
 
@@ -56,7 +56,16 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
     pagination_class = PageNumberPagination
     permission_classes = [IsAuthenticated]
     search_fields = ['question_text']
-    serializer_class = DetailPollSerializer
+
+    serializer_classes = {
+        'list': ListPollSerializer,
+        'retrieve': DetailPollSerializer
+    }
+
+    default_serializer_class = ListPollSerializer
+
+    def get_serializer_class(self):
+        return self.serializer_classes.get(self.action, self.default_serializer_class)
 
 
     def get_queryset(self):
