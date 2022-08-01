@@ -54,7 +54,7 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
     
     filter_backends = [SearchFilter]
     pagination_class = PageNumberPagination
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     search_fields = ['question_text']
 
     serializer_classes = {
