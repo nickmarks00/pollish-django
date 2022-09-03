@@ -198,7 +198,10 @@ class CommentViewSet(ModelViewSet):
         choice_id = request.data.get('choice_id', None)
         user_id = request.data.get('user_id', None)
         
-        queryset = Poll.objects.filter(id=poll_id, choices__in=[choice_id])
+        if choice_id:
+            queryset = Poll.objects.filter(id=poll_id, choices__in=[choice_id])
+        else:
+            queryset = Poll.objects.filter(id=poll_id)
 
         if not queryset.exists():
             return Response({"message": "No such choice on poll"}, status=status.HTTP_400_BAD_REQUEST)
