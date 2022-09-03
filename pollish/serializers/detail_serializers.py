@@ -73,6 +73,15 @@ class DetailPollSerializer(serializers.ModelSerializer):
         return poll
 
 
+class DetailPollVotingSerializer(serializers.ModelSerializer):
+
+    users = BaseUserSerializer(many=True)
+
+    class Meta:
+        model = Choice
+        fields = ['id', 'users']
+
+
 class DetailCommunitySerializer(serializers.ModelSerializer):
 
     id = serializers.IntegerField(read_only=True)

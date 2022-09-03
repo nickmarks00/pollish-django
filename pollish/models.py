@@ -77,7 +77,6 @@ class Comment(models.Model):
 
 
 class PollImage(models.Model):
-
     # specifies upload path for poll images
     def poll_directory_path(self, filename):
         if self.choice:
@@ -89,5 +88,6 @@ class PollImage(models.Model):
     choice = models.OneToOneField(Choice, null=True, on_delete=models.PROTECT)
 
 
-
+class Vote(models.Model):
+    pass
 

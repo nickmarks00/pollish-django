@@ -13,7 +13,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from .models import Poll, Choice, Comment, PollImage, Profile, Community
 
 
-from .serializers.detail_serializers import DetailCommunitySerializer, DetailCommentSerializer, DetailPollImageSerializer, DetailPollSerializer, DetailProfileSerializer
+from .serializers.detail_serializers import DetailCommunitySerializer, DetailCommentSerializer, DetailPollImageSerializer, DetailPollSerializer, DetailProfileSerializer, DetailPollVotingSerializer
 from .serializers.list_serializers import ListCommunitySerializer, ListChoiceSerializer, ListPollSerializer
 
 from core.models import User
@@ -105,6 +105,19 @@ class PollViewSet(GenericViewSet, UpdateModelMixin, ListModelMixin, RetrieveMode
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response([])
+
+    
+    @action(detail=True, methods=['GET'])
+    def voting(self, request, *args, **kwargs):
+
+        poll_id = self.kwargs.get('pk')
+        voting_list = []
+
+        choices = Choice.objects.filter(poll__id=poll_id)
+        if choices.exists():
+            return Response(DetailPollVotingSerializer(choices, many=True).data)
+
+        return Response({"data": ["A poll with the given ID was not found"]}, status=status.HTTP_400_BAD_REQUEST)
 
 
     @action(detail=True, methods=['PATCH'])
